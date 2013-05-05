@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2013-05-05T23:46:53+08:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>
