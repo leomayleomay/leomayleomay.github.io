@@ -1,8 +1,8 @@
 ---
 layout: page
-title: "Resume"
+title: "resume"
 date: 2013-05-05 23:34
-comments: true
+comments: false
 sharing: true
 footer: false
 ---
@@ -13,11 +13,10 @@ footer: false
 
 -> Skype: leomayleomay <-
 
--> Github: [leomayleomay](github.com/leomayleomay) <-
+-> Github: [leomayleomay](https://github.com/leomayleomay) <-
 
--> Twitter: [@leomayleomay](twitter.com/leomayleomay) <-
+-> Twitter: [@leomayleomay](https://twitter.com/leomayleomay) <-
 
-===
 
 Educations:
 ---
@@ -30,7 +29,6 @@ Educations:
 
 	Bachelor Degree of Engineering, Major in Computer Science and Technology	
 
-===
 
 Skills:
 ---
@@ -39,7 +37,6 @@ Skills:
 * RSpec, Cucumber
 * Objective-C, Cocoa Touch
 
-===
 
 Works:
 ---
@@ -54,7 +51,6 @@ Works:
 
 * Quality Engineer at Red Hat, Inc., China R&D Center
 
-===
 
 Internships:
 ---
