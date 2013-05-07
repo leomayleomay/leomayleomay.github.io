@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: OSS, | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/oss/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2013-05-07T23:08:21+08:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[open source the BPDUKPT]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
+    <updated>2013-05-07T22:49:00+08:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
+    <content type="html"><![CDATA[<p>I am happy to announce I just released the v0.1 of <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>.</p>
+
+<p>We've been processing credit card payments from the iOS device more and more, and we are facing a common problem, <strong><em>security</em></strong>. The genius invented the <a href="http://en.wikipedia.org/wiki/Derived_unique_key_per_transaction">DUKPT</a> to ensure the credit card data will never be hijacked by some middleman between our client app and our server, that's really great for the card holders. But for the developer, we've got no luck to have a ready-to-go solution to decrypt the magnetic data captured from the card reader.</p>
+
+<p>Here comes the <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>, you can decrypt magnetic strips like a boss.</p>
+
+<p>```objective-c</p>
+
+<h1>include "BPDUKPTParser.h"</h1>
+
+<p>NSString <em>magData = @"foobarbaz"; // this is the magnetic strips data captured from the card reader
+BPDUKPTIDTechParser </em>parser = [[BPDUKPTIDTechParser alloc] initWithHID:magData];
+BPDUKPTParsingResult *result = [parser parse];</p>
+
+<p>NSLog(@"the encrypted track 1 is: %@", result.track1);
+NSLog(@"the encrypted track 2 is: %@", result.track2);
+NSLog(@"the encrypted track 3 is: %@", result.track3);
+NSLog(@"the KSN is: %@", result.ksn);
+```</p>
+
+<p>Tell <a href="mailto:leomayleomay@gmail.com">me</a> what you think about it, and please help to make it better.</p>
+]]></content>
+  </entry>
+  
+</feed>

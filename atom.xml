@@ -4,7 +4,7 @@
   <title><![CDATA[Hao's Thoughts]]></title>
   <link href="http://leomayleomay.github.io/atom.xml" rel="self"/>
   <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-05-05T23:56:00+08:00</updated>
+  <updated>2013-05-07T23:08:21+08:00</updated>
   <id>http://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -12,5 +12,43 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[open source the BPDUKPT]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
+    <updated>2013-05-07T22:49:00+08:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
+    <content type="html"><![CDATA[<p>I am happy to announce I just released the v0.1 of <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>.</p>
+
+<p>We&#8217;ve been processing credit card payments from the iOS device more and more, and we are facing a common problem, <strong><em>security</em></strong>. The genius invented the <a href="http://en.wikipedia.org/wiki/Derived_unique_key_per_transaction">DUKPT</a> to ensure the credit card data will never be hijacked by some middleman between our client app and our server, that&#8217;s really great for the card holders. But for the developer, we&#8217;ve got no luck to have a ready-to-go solution to decrypt the magnetic data captured from the card reader.</p>
+
+<p>Here comes the <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>, you can decrypt magnetic strips like a boss.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objective-c'><span class='line'><span class="cp">#include &quot;BPDUKPTParser.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">NSString</span> <span class="o">*</span><span class="n">magData</span> <span class="o">=</span> <span class="s">@&quot;foobarbaz&quot;</span><span class="p">;</span> <span class="c1">// this is the magnetic strips data captured from the card reader</span>
+</span><span class='line'><span class="n">BPDUKPTIDTechParser</span> <span class="o">*</span><span class="n">parser</span> <span class="o">=</span> <span class="p">[[</span><span class="n">BPDUKPTIDTechParser</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithHID:</span><span class="n">magData</span><span class="p">];</span>
+</span><span class='line'><span class="n">BPDUKPTParsingResult</span> <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">parser</span> <span class="n">parse</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the encrypted track 1 is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">track1</span><span class="p">);</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the encrypted track 2 is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">track2</span><span class="p">);</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the encrypted track 3 is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">track3</span><span class="p">);</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the KSN is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">ksn</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tell <a href="mailto:leomayleomay@gmail.com">me</a> what you think about it, and please help to make it better.</p>
+]]></content>
+  </entry>
   
 </feed>
