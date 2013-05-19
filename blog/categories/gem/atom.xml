@@ -4,7 +4,7 @@
   <title><![CDATA[Category: gem | Hao's Thoughts]]></title>
   <link href="http://leomayleomay.github.io/blog/categories/gem/atom.xml" rel="self"/>
   <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-05-20T00:31:02+08:00</updated>
+  <updated>2013-05-20T00:34:36+08:00</updated>
   <id>http://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -14,11 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[red_light_released]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/20/red-light-released/"/>
-    <updated>2013-05-20T00:26:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/20/red-light-released</id>
-    <content type="html"><![CDATA[<p>really happy to announce that the <a href="https://github.com/leomayleomay/red_light">red_light</a> is released, you can have fancy login effortlessly incorporated into your Rails application. Check it out, and tell me what you think about it. Tutorial will come soon.</p>
+    <title type="html"><![CDATA[New Gem Released: red light for fancy login]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login/"/>
+    <updated>2013-05-20T00:32:00+08:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login</id>
+    <content type="html"><![CDATA[<p>I am really happy to announce that the <a href="https://github.com/leomayleomay/red_light">red_light</a> is released, you can have fancy login effortlessly incorporated into your Rails application. Check it out, and tell me what you think about it. Tutorial will come soon.</p>
 ]]></content>
   </entry>
   
