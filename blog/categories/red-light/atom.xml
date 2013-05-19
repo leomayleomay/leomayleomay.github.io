@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: red_light | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/red-light/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2013-05-20T00:31:02+08:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[red_light_released]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/05/20/red-light-released/"/>
+    <updated>2013-05-20T00:26:00+08:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/05/20/red-light-released</id>
+    <content type="html"><![CDATA[<p>really happy to announce that the <a href="https://github.com/leomayleomay/red_light">red_light</a> is released, you can have fancy login effortlessly incorporated into your Rails application. Check it out, and tell me what you think about it. Tutorial will come soon.</p>
+]]></content>
+  </entry>
+  
+</feed>
