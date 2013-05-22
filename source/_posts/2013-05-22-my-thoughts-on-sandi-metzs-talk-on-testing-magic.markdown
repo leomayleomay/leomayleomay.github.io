@@ -5,7 +5,7 @@ date: 2013-05-22 22:29
 comments: true
 categories: ruby rails test sandimetz OO
 ---
-Sandi Metz never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the [slides](https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf), here is the [video](http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing) if you are blessed.
+Sandi Metz ([@sandimetz](https://twitter.com/sandimetz)) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the [slides](https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf), here is the [video](http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing) if you are blessed.
 
 I learned a lot from the talk that I don't have to have 100% coverage for the test suite. Here's some pickups you can take away:
 
