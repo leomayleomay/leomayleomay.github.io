@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ruby | Hao's Thoughts]]></title>
   <link href="http://leomayleomay.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-05-22T22:52:11+08:00</updated>
+  <updated>2013-05-22T22:57:32+08:00</updated>
   <id>http://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -18,7 +18,7 @@
     <link href="http://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/"/>
     <updated>2013-05-22T22:29:00+08:00</updated>
     <id>http://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic</id>
-    <content type="html"><![CDATA[<p>Sandi Metz never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
+    <content type="html"><![CDATA[<p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
 
 <p>I learned a lot from the talk that I don't have to have 100% coverage for the test suite. Here's some pickups you can take away:</p>
 
