@@ -4,7 +4,7 @@
   <title><![CDATA[Category: active_record | Hao's Thoughts]]></title>
   <link href="http://leomayleomay.github.io/blog/categories/active-record/atom.xml" rel="self"/>
   <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-06-07T23:01:55+08:00</updated>
+  <updated>2013-06-07T23:05:14+08:00</updated>
   <id>http://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -61,7 +61,9 @@ end</p>
 
 <pre><code>@send_account = create :account, :credits =&gt; 1000
 
-@transaction = Transaction.new(:send_account =&gt; @send_account)
+@transaction = Transaction.new
+@transaction.send_account = @send_account
+@transaction.credits = 1
 
 recv_account = double(:account).as_null_object
 @transaction.stub(:recv_account) {recv_account}
@@ -119,7 +121,7 @@ end</p>
 
 <pre><code>begin
   ActiveRecord::Base.transaction do
-    send_account.deposit!(-credits) 
+    send_account.deposit!(-credits)
     recv_account.deposit!(credits)
   end
 rescue =&gt; e
@@ -137,7 +139,9 @@ end</p>
 
 <pre><code>@send_account = create :account, :credits =&gt; 1000
 
-@transaction = Transaction.new(:send_account =&gt; @send_account)
+@transaction = Transaction.new
+@transaction.send_account = @send_account
+@transaction.credits = 1
 
 recv_account = double(:account).as_null_object
 @transaction.stub(:recv_account) {recv_account}

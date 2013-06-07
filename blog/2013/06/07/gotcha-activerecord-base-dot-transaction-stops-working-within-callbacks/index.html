@@ -142,6 +142,8 @@
 <span class='line-number'>40</span>
 <span class='line-number'>41</span>
 <span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># transaction.rb</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
 </span><span class='line'>  <span class="n">after_create</span> <span class="ss">:transfer_credits</span>
@@ -156,7 +158,7 @@
 </span><span class='line'>    <span class="k">begin</span>
 </span><span class='line'>      <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
 </span><span class='line'>          <span class="n">send_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="o">-</span><span class="n">credits</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
 </span><span class='line'>      <span class="k">end</span>
 </span><span class='line'>    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
 </span><span class='line'>      <span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span>
@@ -169,7 +171,9 @@
 </span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
 </span><span class='line'>    <span class="vi">@send_account</span> <span class="o">=</span> <span class="n">create</span> <span class="ss">:account</span><span class="p">,</span> <span class="ss">:credits</span> <span class="o">=&gt;</span> <span class="mi">1000</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:send_account</span> <span class="o">=&gt;</span> <span class="vi">@send_account</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">send_account</span> <span class="o">=</span> <span class="vi">@send_account</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">credits</span> <span class="o">=</span> <span class="mi">1</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">recv_account</span> <span class="o">=</span> <span class="n">double</span><span class="p">(</span><span class="ss">:account</span><span class="p">)</span><span class="o">.</span><span class="n">as_null_object</span>
 </span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:recv_account</span><span class="p">)</span> <span class="p">{</span><span class="n">recv_account</span><span class="p">}</span>
@@ -253,6 +257,8 @@
 <span class='line-number'>37</span>
 <span class='line-number'>38</span>
 <span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># transaction.rb</span>
 </span><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
 </span><span class='line'>  <span class="n">attr_accessible</span> <span class="ss">:credits</span>
@@ -264,7 +270,7 @@
 </span><span class='line'>    <span class="k">begin</span>
 </span><span class='line'>      <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
 </span><span class='line'>          <span class="n">send_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="o">-</span><span class="n">credits</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
 </span><span class='line'>      <span class="k">end</span>
 </span><span class='line'>    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
 </span><span class='line'>      <span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span>
@@ -277,7 +283,9 @@
 </span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
 </span><span class='line'>    <span class="vi">@send_account</span> <span class="o">=</span> <span class="n">create</span> <span class="ss">:account</span><span class="p">,</span> <span class="ss">:credits</span> <span class="o">=&gt;</span> <span class="mi">1000</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:send_account</span> <span class="o">=&gt;</span> <span class="vi">@send_account</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">send_account</span> <span class="o">=</span> <span class="vi">@send_account</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">credits</span> <span class="o">=</span> <span class="mi">1</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="n">recv_account</span> <span class="o">=</span> <span class="n">double</span><span class="p">(</span><span class="ss">:account</span><span class="p">)</span><span class="o">.</span><span class="n">as_null_object</span>
 </span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:recv_account</span><span class="p">)</span> <span class="p">{</span><span class="n">recv_account</span><span class="p">}</span>
