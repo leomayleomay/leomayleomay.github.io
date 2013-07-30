@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Polymorphic image styles with Paperclip - Hao's Thoughts</title>
+  <meta name="author" content="Hao Liu">
+
+  
+  <meta name="description" content="You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say Album has one cover, User has &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Hao's Thoughts" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Hao's Thoughts</a></h1>
+  
+    <h2>Ruby, Rails, Objective-C and everything else</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:leomayleomay.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/resume">Resume</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Polymorphic Image Styles With Paperclip</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-30T15:02:00+08:00" pubdate data-updated="true">Jul 30<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Image</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:polymorphic</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">validate</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:presence</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">has_attached_file</span> <span class="ss">:attachment</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:avatar</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Album</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:cover</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, an image belongs to a <code>viewable</code> object, the <code>viweable</code> object could be an instance of <code>User</code> or <code>Album</code> or anything else.</p>
+
+<p>The presumption here is that the <code>cover</code> is having a set of styles different from with the <code>avatar</code>, but we only have one <code>Image</code> class, what are we supposed to do? We dispatch. We let the <code>viewable</code> object decide the styles of the image.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Image</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:polymorphic</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">validate</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:presence</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">has_attached_file</span> <span class="ss">:attachment</span><span class="p">,</span>
+</span><span class='line'>    <span class="ss">:styles</span> <span class="o">=&gt;</span> <span class="no">Proc</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span><span class="o">|</span><span class="n">a</span><span class="o">|</span> <span class="n">a</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">viewable</span><span class="o">.</span><span class="n">image_styles</span><span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:avatar</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">image_styles</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">:thumb</span> <span class="o">=&gt;</span> <span class="s2">&quot;30x30&gt;&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">:medium</span> <span class="o">=&gt;</span> <span class="s2">&quot;100x100&gt;&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Album</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:cover</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">image_styles</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">:cart</span> <span class="o">=&gt;</span> <span class="s2">&quot;50x50&gt;&quot;</span>
+</span><span class='line'>      <span class="ss">:large</span> <span class="o">=&gt;</span> <span class="s2">&quot;300x300&gt;&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We now have one <code>Image</code> class having different styles for different <code>viewable</code> objects, we can also do the same thing to <code>default_url</code> and <code>path</code>. Leave me a comment if you have better solution, thanks a lot.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Hao Liu</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-07-30T15:02:00+08:00" pubdate data-updated="true">Jul 30<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/object/'>Object</a>, <a class='category' href='/blog/categories/oriented/'>Oriented</a>, <a class='category' href='/blog/categories/programming/'>Programming</a>, <a class='category' href='/blog/categories/paperclip/'>paperclip,</a>, <a class='category' href='/blog/categories/rails/'>rails,</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/" data-via="leomayleomay" data-counturl="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/" title="Previous Post: gotcha: get DateTime.now work with ActiveRecord::Base scope">&laquo; gotcha: get DateTime.now work with ActiveRecord::Base scope</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/07/30/polymorphic-image-styles-using-paperclip/">Polymorphic image styles with Paperclip</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/">gotcha: get DateTime.now work with ActiveRecord::Base scope</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/">Gotcha: ActiveRecord::Base.transaction stops working within callbacks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/27/fancy-login-with-red-light/">Fancy login with red light</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/">My thoughts on Sandi Metz's talk on testing magic</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/leomayleomay">@leomayleomay</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'leomayleomay',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Hao Liu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'acts-as-human';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/';
+        var disqus_url = 'http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

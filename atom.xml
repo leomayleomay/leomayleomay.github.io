@@ -4,7 +4,7 @@
   <title><![CDATA[Hao's Thoughts]]></title>
   <link href="http://leomayleomay.github.io/atom.xml" rel="self"/>
   <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-06-29T21:11:53+08:00</updated>
+  <updated>2013-07-30T15:47:14+08:00</updated>
   <id>http://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -12,6 +12,117 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
+    <updated>2013-07-30T15:02:00+08:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
+    <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Image</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:polymorphic</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">validate</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:presence</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">has_attached_file</span> <span class="ss">:attachment</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:avatar</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Album</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:cover</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, an image belongs to a <code>viewable</code> object, the <code>viweable</code> object could be an instance of <code>User</code> or <code>Album</code> or anything else.</p>
+
+<p>The presumption here is that the <code>cover</code> is having a set of styles different from with the <code>avatar</code>, but we only have one <code>Image</code> class, what are we supposed to do? We dispatch. We let the <code>viewable</code> object decide the styles of the image.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Image</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:polymorphic</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">validate</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:presence</span> <span class="o">=&gt;</span> <span class="kp">true</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">has_attached_file</span> <span class="ss">:attachment</span><span class="p">,</span>
+</span><span class='line'>    <span class="ss">:styles</span> <span class="o">=&gt;</span> <span class="no">Proc</span><span class="o">.</span><span class="n">new</span> <span class="p">{</span><span class="o">|</span><span class="n">a</span><span class="o">|</span> <span class="n">a</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">viewable</span><span class="o">.</span><span class="n">image_styles</span><span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:avatar</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">image_styles</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">:thumb</span> <span class="o">=&gt;</span> <span class="s2">&quot;30x30&gt;&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="ss">:medium</span> <span class="o">=&gt;</span> <span class="s2">&quot;100x100&gt;&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Album</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">has_one</span> <span class="ss">:cover</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Image&quot;</span><span class="p">,</span> <span class="ss">:as</span> <span class="o">=&gt;</span> <span class="ss">:viewable</span><span class="p">,</span> <span class="ss">:dependent</span> <span class="o">=&gt;</span> <span class="ss">:destroy</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">image_styles</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="ss">:cart</span> <span class="o">=&gt;</span> <span class="s2">&quot;50x50&gt;&quot;</span>
+</span><span class='line'>      <span class="ss">:large</span> <span class="o">=&gt;</span> <span class="s2">&quot;300x300&gt;&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We now have one <code>Image</code> class having different styles for different <code>viewable</code> objects, we can also do the same thing to <code>default_url</code> and <code>path</code>. Leave me a comment if you have better solution, thanks a lot.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
