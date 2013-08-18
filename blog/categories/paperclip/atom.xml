@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: paperclip, | Hao's Thoughts]]></title>
-  <link href="http://leomayleomay.github.io/blog/categories/paperclip/atom.xml" rel="self"/>
-  <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-07-30T15:47:14+08:00</updated>
-  <id>http://leomayleomay.github.io/</id>
+  <title><![CDATA[Category: paperclip | Hao's Thoughts]]></title>
+  <link href="https://leomayleomay.github.io/blog/categories/paperclip/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2013-08-18T17:36:39+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
     <updated>2013-07-30T15:02:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
+    <id>https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
     <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
 
 <p>```ruby</p>

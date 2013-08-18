@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: scope | Hao's Thoughts]]></title>
-  <link href="http://leomayleomay.github.io/blog/categories/scope/atom.xml" rel="self"/>
-  <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-07-30T15:47:14+08:00</updated>
-  <id>http://leomayleomay.github.io/</id>
+  <link href="https://leomayleomay.github.io/blog/categories/scope/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2013-08-18T17:36:39+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
     <updated>2013-06-29T19:12:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
+    <id>https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
     <content type="html"><![CDATA[<p>```ruby</p>
 
 <p>class Invitation &lt; ActiveRecord::Base

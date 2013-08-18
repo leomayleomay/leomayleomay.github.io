@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: OSS | Hao's Thoughts]]></title>
-  <link href="http://leomayleomay.github.io/blog/categories/oss/atom.xml" rel="self"/>
-  <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-07-30T15:47:14+08:00</updated>
-  <id>http://leomayleomay.github.io/</id>
+  <link href="https://leomayleomay.github.io/blog/categories/oss/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2013-08-18T17:36:39+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Fancy login with red light]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
     <updated>2013-05-27T17:53:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
     <content type="html"><![CDATA[<p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
 
 <p>It's fancy because it detects the links and forms requiring authencation in a fancy way. I am going to use <a href="https://github.com/plataformatec/devise">Devise</a> for authentication in the following example app, and you will learn how to have fancy login within your app.</p>

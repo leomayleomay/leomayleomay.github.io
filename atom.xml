@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Hao's Thoughts]]></title>
-  <link href="http://leomayleomay.github.io/atom.xml" rel="self"/>
-  <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-07-30T15:47:14+08:00</updated>
-  <id>http://leomayleomay.github.io/</id>
+  <link href="https://leomayleomay.github.io/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2013-08-18T17:36:39+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
     
@@ -14,10 +14,216 @@
 
   
   <entry>
+    <title type="html"><![CDATA[As a Rails dev, you may want to think in the iOS way]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way/"/>
+    <updated>2013-08-18T16:02:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way</id>
+    <content type="html"><![CDATA[<p>I am not sure this is a good idea, but I think it worths a post to share the idea to the people who&#8217;re suffering/fighting messy dependencies within their applications.</p>
+
+<p>Anyone who&#8217;s been programming in Objective-C should be familiar with the delegate/protocol, you can barely make any practical iOS application without knowing the delegate/protocol. For those of you who have never been in the iOS world, this is the quick definition from <a href="http://developer.apple.com/library/ios/documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithProtocols/WorkingwithProtocols.html">apple official document</a></p>
+
+<blockquote><p>In the world of object-oriented programming, it’s important to be able to define a set of behavior that is expected of an object in a given situation. As an example, a table view expects to be able to communicate with a data source object in order to find out what it is required to display. This means that the data source must respond to a specific set of messages that the table view might send.</p></blockquote>
+
+<p>I am not a language expert, I have no idea who invented this, but this is definitely a brilliant idea in my opinion, you just fire a method on your collaborator, and you will be notified what to do next. You don&#8217;t ask, you tell, sounds familiar? Yeah, people in Hollywood are always saying:</p>
+
+<blockquote><p>You don&#8217;t call us, we will call you</p></blockquote>
+
+<p>It&#8217;s also well known as <a href="http://c2.com/cgi/wiki?TellDontAsk">Tell, don&#8217;t ask</a>.</p>
+
+<p>You know what, you don&#8217;t have to be an iOS developer to benefit from this, this is generic you can apply it to your Rails applications.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PostsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new</span>
+</span><span class='line'>    <span class="vi">@post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>    <span class="vi">@post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:post</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="vi">@post</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">posts_path</span><span class="p">,</span> <span class="ss">:notice</span> <span class="o">=&gt;</span> <span class="s2">&quot;Post created succesfully!&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above snippet is a classical <code>PostsController</code> that does nothing wrong, the coming part is the same logic implemented with delegate/protocol.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PostsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new</span>
+</span><span class='line'>    <span class="vi">@post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>      <span class="n">service</span> <span class="o">=</span> <span class="no">PostService</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>      <span class="n">service</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="nb">self</span>
+</span><span class='line'>      <span class="n">service</span><span class="o">.</span><span class="n">create_new_post</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:post</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># PostServiceProtocol begins</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new_post_created_successfully</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">posts_path</span><span class="p">,</span> <span class="ss">:notice</span> <span class="o">=&gt;</span> <span class="s2">&quot;Post created succesfully!&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new_post_not_created_because_of</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">:new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="c1"># PostServiceProtocol ends</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">PostService</span>
+</span><span class='line'>  <span class="kp">attr_writer</span> <span class="ss">:delegate</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create_new_post</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="k">if</span> <span class="n">post</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>        <span class="nb">self</span><span class="o">.</span><span class="n">delegate</span><span class="o">.</span><span class="n">new_post_created_successfully</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="nb">self</span><span class="o">.</span><span class="n">delegate</span><span class="o">.</span><span class="n">new_post_not_created_because_of</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">protected</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">delegate</span>
+</span><span class='line'>    <span class="vi">@delegate</span> <span class="o">||=</span> <span class="no">NullPostServiceDelegate</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">NullPostServiceDelegate</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new_post_created_successfully</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1"># no-op</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new_post_not_created_because_of</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># no-op</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you are still with me, you may ask: &#8220;why bother?&#8221;, why we want to do this as long as the first version is working perfectly, my explanation is you never know who&#8217;s going to call <code>PostService#create_new_post</code>. For now, it&#8217;s just <code>PostsController</code> doing that. Imagine the Rails application is providing API backend for a mobile app, someone is going to create new post via API, are we going to duplicate the logic as well as the tests? I don&#8217;t think so.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Api</span><span class="o">::</span><span class="no">PostsController</span> <span class="o">&lt;</span> <span class="ss">Api</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>      <span class="n">service</span> <span class="o">=</span> <span class="no">PostService</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>      <span class="n">service</span><span class="o">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="nb">self</span>
+</span><span class='line'>      <span class="n">service</span><span class="o">.</span><span class="n">create_new_post</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:post</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># PostServiceProtocol begins</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new_post_created_successfully</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">:json</span> <span class="o">=&gt;</span> <span class="n">post</span><span class="o">.</span><span class="n">to_json</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new_post_not_created_because_of</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">:json</span> <span class="o">=&gt;</span> <span class="p">{</span>
+</span><span class='line'>      <span class="ss">:errors</span> <span class="o">=&gt;</span> <span class="n">errors</span>
+</span><span class='line'>    <span class="p">}</span><span class="o">.</span><span class="n">to_json</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="c1"># PostServiceProtocol ends </span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can see from the above example, I am having the same logic for creating post for the web endpoint and API endpoint, it&#8217;s consitent.</p>
+
+<p>For now, there&#8217;s no way in plain Ruby to define protocol for a class, there&#8217;s also no way to have a class corform to specific protocol, I am considering have a gem for that, if you are interested pair with me, ping me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
     <updated>2013-07-30T15:02:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
+    <id>https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
     <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -126,9 +332,9 @@
   
   <entry>
     <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
     <updated>2013-06-29T19:12:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
+    <id>https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
     <content type="html"><![CDATA[<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -212,9 +418,9 @@
   
   <entry>
     <title type="html"><![CDATA[Gotcha: ActiveRecord::Base.transaction stops working within callbacks]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/"/>
     <updated>2013-06-07T22:45:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks</id>
+    <id>https://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks</id>
     <content type="html"><![CDATA[<p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
 
 <p>As you can see,</p>
@@ -432,9 +638,9 @@
   
   <entry>
     <title type="html"><![CDATA[Fancy login with red light]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
     <updated>2013-05-27T17:53:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
     <content type="html"><![CDATA[<p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
 
 <p>It&#8217;s fancy because it detects the links and forms requiring authencation in a fancy way. I am going to use <a href="https://github.com/plataformatec/devise">Devise</a> for authentication in the following example app, and you will learn how to have fancy login within your app.</p>
@@ -549,7 +755,7 @@
 
 <p>Visit <code>localhost:3000</code>, inspect the &#8220;New Post&#8221; link, you fill find the interesting <code>rel</code></p>
 
-<p><img class="left" src="http://leomayleomay.github.io/images/fancy_login_rel.jpg" width="685" height="24" title="'fancy_login_rel'" ></p>
+<p><img class="left" src="https://leomayleomay.github.io/images/fancy_login_rel.jpg" width="685" height="24" title="'fancy_login_rel'" ></p>
 
 <p><code>red_light</code> add that <code>rel</code> to the link requiring authentication auto-magically. With the <code>rel</code>, you can play some javascript tricks to present a modal view when the link is clicked, here&#8217;s a <a href="https://fancy-login.herokuapp.com">demo</a>.</p>
 
@@ -559,9 +765,9 @@
   
   <entry>
     <title type="html"><![CDATA[My thoughts on Sandi Metz's talk on testing magic]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/"/>
     <updated>2013-05-22T22:29:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic</id>
     <content type="html"><![CDATA[<p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
 
 <p>I learned a lot from the talk that I don&#8217;t have to have 100% coverage for the test suite. Here&#8217;s some pickups you can take away:</p>
@@ -587,18 +793,18 @@
   
   <entry>
     <title type="html"><![CDATA[New Gem Released: red light for fancy login]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login/"/>
     <updated>2013-05-20T00:32:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login</id>
     <content type="html"><![CDATA[<p>I am really happy to announce that the <a href="https://github.com/leomayleomay/red_light">red_light</a> is released, you can have fancy login effortlessly incorporated into your Rails application. Check it out, and tell me what you think about it. Tutorial will come soon.</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[take a REST]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/07/take-a-rest/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/07/take-a-rest/"/>
     <updated>2013-05-07T23:16:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/07/take-a-rest</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/07/take-a-rest</id>
     <content type="html"><![CDATA[<p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is a buzzword in the modern web development world. &#8220;Be RESTful&#8221;, &#8220;Keep up to the RESTful rules&#8221; is usually thought as one of the best practices we need to keep in mind.</p>
 
 <p>We are all blessed as a <a href="http://www.ruby-lang.org/en/">Ruby</a> &amp; <a href="http://rubyonrails.org/">Rails</a> developer, since Rails has already had REST baked within its heart, for example,</p>
@@ -772,9 +978,9 @@
   
   <entry>
     <title type="html"><![CDATA[open source the BPDUKPT]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
     <updated>2013-05-07T22:49:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
     <content type="html"><![CDATA[<p>I am happy to announce I just released the v0.1 of <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>.</p>
 
 <p>We&#8217;ve been processing credit card payments from the iOS device more and more, and we are facing a common problem, <strong><em>security</em></strong>. The genius invented the <a href="http://en.wikipedia.org/wiki/Derived_unique_key_per_transaction">DUKPT</a> to ensure the credit card data will never be hijacked by some middleman between our client app and our server, that&#8217;s really great for the card holders. But for the developer, we&#8217;ve got no luck to have a ready-to-go solution to decrypt the magnetic data captured from the card reader.</p>

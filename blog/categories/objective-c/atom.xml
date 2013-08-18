@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Objective-C, | Hao's Thoughts]]></title>
-  <link href="http://leomayleomay.github.io/blog/categories/objective-c/atom.xml" rel="self"/>
-  <link href="http://leomayleomay.github.io/"/>
-  <updated>2013-07-30T15:47:14+08:00</updated>
-  <id>http://leomayleomay.github.io/</id>
+  <link href="https://leomayleomay.github.io/blog/categories/objective-c/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2013-08-18T17:36:39+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[open source the BPDUKPT]]></title>
-    <link href="http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
+    <link href="https://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
     <updated>2013-05-07T22:49:00+08:00</updated>
-    <id>http://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
+    <id>https://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
     <content type="html"><![CDATA[<p>I am happy to announce I just released the v0.1 of <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>.</p>
 
 <p>We've been processing credit card payments from the iOS device more and more, and we are facing a common problem, <strong><em>security</em></strong>. The genius invented the <a href="http://en.wikipedia.org/wiki/Derived_unique_key_per_transaction">DUKPT</a> to ensure the credit card data will never be hijacked by some middleman between our client app and our server, that's really great for the card holders. But for the developer, we've got no luck to have a ready-to-go solution to decrypt the magnetic data captured from the card reader.</p>
