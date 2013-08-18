@@ -3,7 +3,7 @@ layout: post
 title: "Polymorphic image styles with Paperclip"
 date: 2013-07-30 15:02
 comments: true
-categories: "rails" "paperclip" "Object Oriented Programming"
+categories: rails paperclip OO
 ---
 
 You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say `Album` has one `cover`, `User` has one `avatar`:
