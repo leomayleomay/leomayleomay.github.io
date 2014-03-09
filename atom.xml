@@ -4,7 +4,7 @@
   <title><![CDATA[Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-01-29T13:19:12+08:00</updated>
+  <updated>2014-03-09T21:13:11+08:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -12,6 +12,72 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sortable bootstrap table with STI]]></title>
+    <link href="https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/"/>
+    <updated>2014-03-09T20:17:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti</id>
+    <content type="html"><![CDATA[<p>You are working on a Rails 3 project and your client asks you to sort a list of items and display the items in order, the first thing come to your mind might be acts_as_list and jQuery sortable, you are not alone. I found that acts_as_list requires the items to be sorted belong to a parent, sadly, that&#8217;s not the case I am facing, the items I am trying to sort belongs to nothing, <a href="https://github.com/mixonic/ranked-model">RankedModel</a> come to rescue.</p>
+
+<blockquote><p>ranked-model is a modern row sorting library built for Rails 3 &amp; 4. It uses ARel aggressively and is better optimized than most other libraries.</p></blockquote>
+
+<p>Lucky me, i found <a href="http://benw.me/posts/sortable-bootstrap-tables">this great post</a> introducing how to get RankdedModel work with Bootstrap table and jQuery sortable.</p>
+
+<p>The requirement I am facing is bit more complex than the one explained in the above article, I have a list of items, which is an array of items of different types stored in one single tables, say, I have the following object layout:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Employee</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RankedModel</span>
+</span><span class='line'>  <span class="n">ranks</span> <span class="ss">:title</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Manager</span> <span class="o">&lt;</span> <span class="no">Employee</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Salesman</span> <span class="o">&lt;</span> <span class="no">Employee</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Say, I have a list of employees, including managers, salesman shown in order, I can now drag and drop to sort the items in the list, great, ready to charge the customer? Not yet, you will find it will only sort the managers and salesmen separately, it will not sort them as a whole entity, dig into the source of RankedModel, i found something really interesting,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">\</span><span class="c1">#lib/ranked-model/ranker.rb</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">instance_class</span>
+</span><span class='line'>  <span class="n">ranker</span><span class="o">.</span><span class="n">class_name</span><span class="o">.</span><span class="n">nil?</span> <span class="p">?</span> <span class="n">instance</span><span class="o">.</span><span class="n">class</span> <span class="p">:</span> <span class="n">ranker</span><span class="o">.</span><span class="n">class_name</span><span class="o">.</span><span class="n">constantize</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">This</span> <span class="n">where</span> <span class="n">the</span> <span class="no">RankedModel</span> <span class="n">decides</span> <span class="n">which</span> <span class="k">class</span> <span class="n">to</span> <span class="n">use</span> <span class="n">as</span> <span class="n">the</span> <span class="n">finder</span><span class="p">,</span> <span class="n">the</span> <span class="n">problem</span> <span class="n">it</span> <span class="n">could</span> <span class="ow">not</span> <span class="n">sort</span> <span class="n">managers</span> <span class="ow">and</span> <span class="n">salesmen</span> <span class="n">as</span> <span class="n">a</span> <span class="n">whole</span> <span class="n">entity</span> <span class="n">is</span> <span class="n">because</span> <span class="n">it</span> <span class="n">will</span> <span class="n">use</span> <span class="sb">`Manager`</span> <span class="ow">and</span> <span class="sb">`Salesman`</span> <span class="n">separately</span> <span class="n">to</span> <span class="k">do</span> <span class="n">the</span> <span class="n">sorting</span><span class="p">,</span> <span class="no">RankedModel</span> <span class="n">found</span> <span class="n">this</span> <span class="n">problem</span> <span class="n">before</span> <span class="n">I</span> <span class="k">do</span><span class="p">,</span> <span class="ow">and</span> <span class="n">they</span> <span class="n">provide</span> <span class="n">an</span> <span class="n">option</span> <span class="sb">`class_name`</span> <span class="n">to</span> <span class="n">unify</span> <span class="n">the</span> <span class="n">finder</span> <span class="n">lookup</span><span class="p">,</span> <span class="n">the</span> <span class="n">solution</span> <span class="ss">is</span><span class="p">:</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ruby</p>
+
+<p>class Employee &lt; ActiveRecord::Base
+  include RankedModel
+  ranks :title, :class_name => &#8220;Employee&#8221;
+end</p>
+
+<p>Back to the items listing page, viola, it sorts the <code>Manager</code> and <code>Salesman</code> as a whole entity.</p>
+
+<p>Happy hacking!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[爷爷，走好]]></title>
