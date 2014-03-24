@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Customize the polymorphic URL for STI - Hao's Thoughts</title>
+  <meta name="author" content="Hao Liu">
+
+  
+  <meta name="description" content="One thing I love Rails is it provides really handy URL helpers to the developers. Today, I am going to present you guys how to use polymorphic_url &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Hao's Thoughts" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Hao's Thoughts</a></h1>
+  
+    <h2>Ruby, Rails, Objective-C and everything else</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:leomayleomay.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/resume">Resume</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Customize the Polymorphic URL for STI</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-24T18:19:00+08:00" pubdate data-updated="true">Mar 24<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>One thing I love Rails is it provides really handy URL helpers to the developers. Today, I am going to present you guys how to use <a href="http://api.rubyonrails.org/classes/ActionDispatch/Routing/PolymorphicRoutes.html">polymorphic_url</a> like a ninja.</p>
+
+<p>Say, I&#8217;ve got the following models:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/vehicle.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Vehicle</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># app/models/bicycle.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Bicycle</span> <span class="o">&lt;</span> <span class="no">Vehicle</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># app/models/motercycle.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Motorcycle</span> <span class="o">&lt;</span> <span class="no">Vehicle</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, we&#8217;ve have a STI table named <code>vehicles</code> in the database, and it stores all the bicycles, motorcycles and the other new vehicles we may have in the future, like <code>unicycle</code>.</p>
+
+<p>We have a collection of vehicles, <code>@vehicles</code>, it contains bicycles and motercycles. What we are going to do is iterating the <code>@vehicles</code>, and display a link to the vehicle detail page. With <code>polymorphic_url</code>, we can write down the following code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">% @vechicles.each </span><span class="k">do</span> <span class="o">|</span><span class="n">v</span><span class="o">|</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;%= link_to &quot;Vehicle Detail&quot;, polymorphic_url(v) %&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sx">% end </span><span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>instead of:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;</span><span class="sx">% @vehicles.each </span><span class="k">do</span> <span class="o">|</span><span class="n">v</span><span class="o">|</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;% if v.is_a? Bicycle %&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="sx">%= link_to &quot;Vehicle Detail&quot;, bicycle_page(v) %&gt;</span>
+</span><span class='line'><span class="sx">  &lt;% elsif v.is_a? Motercycle %&gt;</span>
+</span><span class='line'><span class="sx">     &lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;Vehicle Detail&quot;</span><span class="p">,</span> <span class="n">motorcycle_page</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="sx">%&gt;</span>
+</span><span class='line'><span class="sx">  &lt;% end %&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sx">% end </span><span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once we add a new kind of vehicle, we don&#8217;t need to open the above view file and add another <code>elsif</code>, it complies to the <a href="http://en.wikipedia.org/wiki/Open/closed_principle">Open Closed Principle</a> perfectly!</p>
+
+<p>The request to bicycle detail will go to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/controllers/bicycles_controller.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">BicyclesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">show</span>
+</span><span class='line'>    <span class="vi">@bicycle</span> <span class="o">=</span> <span class="no">Bicycle</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># app/views/bicycles/show.html.erb</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="no">Here</span> <span class="n">comes</span> <span class="n">the</span> <span class="n">bicycle</span> <span class="n">details</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the request to motorcycle detail will go to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/controllers/motorcycles_controller.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">MotorcyclesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">show</span>
+</span><span class='line'>    <span class="vi">@motorcycle</span> <span class="o">=</span> <span class="no">Motorcycle</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># app/views/motorcycles/show.html.erb</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="no">Here</span> <span class="n">comes</span> <span class="n">the</span> <span class="n">motorcycle</span> <span class="n">details</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What if we want to have the same controller rendering the same view for all the vehicles? Say, we only want one <code>VehiclesController#show</code> for all the vehicles&#8217;s detail, here we go:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/controllers/vehicles_controller.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">VechiclesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">show</span>
+</span><span class='line'>    <span class="vi">@vehicle</span> <span class="o">=</span> <span class="no">Vehicle</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:id</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># app/views/vechicles/show.html.erb</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="no">Here</span> <span class="n">comes</span> <span class="n">the</span> <span class="n">motorcycle</span> <span class="n">details</span><span class="o">&lt;</span><span class="sr">/h1&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You may say we can just use <code>vehicle_url(v)</code> to generate the URL, I can not agree more, but we are exploring something deep inside of Ruby on Rails, so, bare with me, :)</p>
+
+<p>To have the <code>polymorphic_url</code>, generate the URL like <code>vechicle_url</code>, we need to overwrite <code>self.model_name</code> for the <code>Vehicle</code>, here&#8217;s how I found it out:</p>
+
+<ol>
+<li>the <code>polymorphic_url</code> will call <code>build_named_route_call</code> to generate the URL</li>
+<li>the <code>build_named_route_call</code> will call <code>RecordIdentifier.__send__("plural_class_name", record)</code> to find out reource name, say, a record of <code>Bicycle</code> will generate <code>bicycles</code></li>
+<li>the <code>plural_class_name</code> will call <code>model_name_from_record_or_class</code> to determine the model name of the record</li>
+<li><code>model_name_from_record_or_class</code> will call the record&#8217;s class <code>model_name</code> method to find out the model name of the class</li>
+</ol>
+
+
+<p>We need to override the <code>self.model_name</code> to let <code>polymorphic_url</code> pick up the right model name:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/vehicle.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Vehicle</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">model_name</span>
+</span><span class='line'>    <span class="ss">ActiveModel</span><span class="p">:</span><span class="ss">:Name</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="s2">&quot;Vehicle&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If we want a custom URL and view template for specific vehicle, we can also write something like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># app/models/unicycle.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Unicycle</span> <span class="o">&lt;</span> <span class="no">Vehicle</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">model_name</span>
+</span><span class='line'>    <span class="ss">ActiveModel</span><span class="p">:</span><span class="ss">:Name</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="s2">&quot;Unicycle&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With the following customization, <code>polymorphic_url(@unicycle)</code> will generate the URL <code>unicycle_url(@unicycle)</code>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Hao Liu</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-24T18:19:00+08:00" pubdate data-updated="true">Mar 24<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/rails/'>Rails</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/" data-via="leomayleomay" data-counturl="https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/09/sortable-bootstrap-table-with-sti/" title="Previous Post: Sortable bootstrap table with STI">&laquo; Sortable bootstrap table with STI</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">Customize the polymorphic URL for STI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/09/sortable-bootstrap-table-with-sti/">Sortable bootstrap table with STI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/10/miss-you-my-grandpa/">爷爷，走好</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/18/think-in-ios-way/">As a Rails dev, you may want to think in the iOS way</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/30/polymorphic-image-styles-using-paperclip/">Polymorphic image styles with Paperclip</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/leomayleomay">@leomayleomay</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'leomayleomay',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Hao Liu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'acts-as-human';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/';
+        var disqus_url = 'https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

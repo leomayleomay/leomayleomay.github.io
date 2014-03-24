@@ -54,15 +54,21 @@
         <loc>
             https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/
         </loc>
-        <lastmod>2014-03-09T21:12:49+08:00</lastmod>
+        <lastmod>2014-03-09T21:15:53+08:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/
+        </loc>
+        <lastmod>2014-03-24T19:32:03+08:00</lastmod>
     </url>
     <url>
         <loc>https://leomayleomay.github.io/blog/archives/</loc>
-        <lastmod>2014-03-09T21:12:49+08:00</lastmod>
+        <lastmod>2014-03-24T19:32:03+08:00</lastmod>
     </url>
     <url>
         <loc>https://leomayleomay.github.io/</loc>
-        <lastmod>2014-03-09T21:12:49+08:00</lastmod>
+        <lastmod>2014-03-24T19:32:03+08:00</lastmod>
     </url>
     <url>
         <loc>https://leomayleomay.github.io/resume/</loc>

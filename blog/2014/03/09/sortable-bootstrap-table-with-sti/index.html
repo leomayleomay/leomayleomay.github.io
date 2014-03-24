@@ -128,23 +128,25 @@
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">\</span><span class="c1">#lib/ranked-model/ranker.rb</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/ranked-model/ranker.rb</span>
 </span><span class='line'><span class="k">def</span> <span class="nf">instance_class</span>
 </span><span class='line'>  <span class="n">ranker</span><span class="o">.</span><span class="n">class_name</span><span class="o">.</span><span class="n">nil?</span> <span class="p">?</span> <span class="n">instance</span><span class="o">.</span><span class="n">class</span> <span class="p">:</span> <span class="n">ranker</span><span class="o">.</span><span class="n">class_name</span><span class="o">.</span><span class="n">constantize</span>
 </span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="no">This</span> <span class="n">where</span> <span class="n">the</span> <span class="no">RankedModel</span> <span class="n">decides</span> <span class="n">which</span> <span class="k">class</span> <span class="n">to</span> <span class="n">use</span> <span class="n">as</span> <span class="n">the</span> <span class="n">finder</span><span class="p">,</span> <span class="n">the</span> <span class="n">problem</span> <span class="n">it</span> <span class="n">could</span> <span class="ow">not</span> <span class="n">sort</span> <span class="n">managers</span> <span class="ow">and</span> <span class="n">salesmen</span> <span class="n">as</span> <span class="n">a</span> <span class="n">whole</span> <span class="n">entity</span> <span class="n">is</span> <span class="n">because</span> <span class="n">it</span> <span class="n">will</span> <span class="n">use</span> <span class="sb">`Manager`</span> <span class="ow">and</span> <span class="sb">`Salesman`</span> <span class="n">separately</span> <span class="n">to</span> <span class="k">do</span> <span class="n">the</span> <span class="n">sorting</span><span class="p">,</span> <span class="no">RankedModel</span> <span class="n">found</span> <span class="n">this</span> <span class="n">problem</span> <span class="n">before</span> <span class="n">I</span> <span class="k">do</span><span class="p">,</span> <span class="ow">and</span> <span class="n">they</span> <span class="n">provide</span> <span class="n">an</span> <span class="n">option</span> <span class="sb">`class_name`</span> <span class="n">to</span> <span class="n">unify</span> <span class="n">the</span> <span class="n">finder</span> <span class="n">lookup</span><span class="p">,</span> <span class="n">the</span> <span class="n">solution</span> <span class="ss">is</span><span class="p">:</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>ruby</p>
+<p>This where the RankedModel decides which class to use as the finder, the problem it could not sort managers and salesmen as a whole entity is because it will use <code>Manager</code> and <code>Salesman</code> separately to do the sorting, RankedModel found this problem before I do, and they provide an option <code>class_name</code> to unify the finder lookup, the solution is:</p>
 
-<p>class Employee &lt; ActiveRecord::Base
-  include RankedModel
-  ranks :title, :class_name => &#8220;Employee&#8221;
-end</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Employee</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RankedModel</span>
+</span><span class='line'>  <span class="n">ranks</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Employee&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Back to the items listing page, viola, it sorts the <code>Manager</code> and <code>Salesman</code> as a whole entity.</p>
 
@@ -197,6 +199,8 @@ end</p>
         <a class="basic-alignment left" href="/blog/2014/01/10/miss-you-my-grandpa/" title="Previous Post: 爷爷，走好">&laquo; 爷爷，走好</a>
       
       
+        <a class="basic-alignment right" href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/" title="Next Post: Customize the polymorphic URL for STI">Customize the polymorphic URL for STI &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -216,6 +220,10 @@ end</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">Customize the polymorphic URL for STI</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/03/09/sortable-bootstrap-table-with-sti/">Sortable bootstrap table with STI</a>
       </li>
     
@@ -229,10 +237,6 @@ end</p>
     
       <li class="post">
         <a href="/blog/2013/07/30/polymorphic-image-styles-using-paperclip/">Polymorphic image styles with Paperclip</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/">gotcha: get DateTime.now work with ActiveRecord::Base scope</a>
       </li>
     
   </ul>

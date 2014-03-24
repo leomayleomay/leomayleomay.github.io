@@ -9,7 +9,7 @@
   <meta name="author" content="Hao Liu">
 
   
-  <meta name="description" content="I am happy to announce I just released the v0.1 of BPDUKPT. We&#8217;ve been processing credit card payments from the iOS device more and more, and &hellip;">
+  <meta name="description" content="REST is a buzzword in the modern web development world. &#8220;Be RESTful&#8221;, &#8220;Keep up to the RESTful rules&#8221; is usually thought as &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,209 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/07/take-a-rest/">Take a REST</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-07T23:16:00+08:00" pubdate data-updated="true">May 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is a buzzword in the modern web development world. &#8220;Be RESTful&#8221;, &#8220;Keep up to the RESTful rules&#8221; is usually thought as one of the best practices we need to keep in mind.</p>
+
+<p>We are all blessed as a <a href="http://www.ruby-lang.org/en/">Ruby</a> &amp; <a href="http://rubyonrails.org/">Rails</a> developer, since Rails has already had REST baked within its heart, for example,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:photos</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>will generate 7 routes for us:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left"> HTTP Verb </th>
+<th align="left"> Path  </th>
+<th align="right"> action used for </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td align="left">GET    /photos             </td>
+<td align="left"> index             </td>
+<td align="right"> display a list of all photos</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/new         </td>
+<td align="left"> new               </td>
+<td align="right"> return an HTML form for creating a new photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">POST   /photos             </td>
+<td align="left"> create            </td>
+<td align="right"> create a new photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/:id         </td>
+<td align="left"> show              </td>
+<td align="right"> display a specific photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/:id/edit    </td>
+<td align="left"> edit              </td>
+<td align="right"> return an HTML form for editing a photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">PUT    /photos/:id         </td>
+<td align="left"> update            </td>
+<td align="right"> update a specific photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">DELETE /photos/:id         </td>
+<td align="left"> delete            </td>
+<td align="right"> delete a specific photo</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<p>Awesome! we can also adjust which actions we want via editing the resources defined in the <code>config/routes.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:photos</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have only two actions left for the <code>PhotosController</code>, and they are <code>GET /photos</code> and <code>GET /photos/:id</code>, any other requests except these two will result in an error. So far so, good, until one day, the boss came over and told you to add comment to the photos, we want the user to comment the photos, who doesn&#8217;t? OK, roll up the sleeves, and change the <code>config/routes.rb</code> to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:photos</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">member</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">post</span> <span class="ss">:comment</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>that will give us a new routes <code>POST /photos/:id/comment</code>, and we add the corresponding action to the <code>PhotosController</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PhotosController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:find_the_current_user</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:find_the_current_photo</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">comment</span>
+</span><span class='line'>    <span class="n">comment</span> <span class="o">=</span> <span class="n">current_user</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:comment</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">comment</span><span class="o">.</span><span class="n">commentable</span> <span class="o">=</span> <span class="n">current_photo</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">comment</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">current_photo</span><span class="p">,</span> <span class="ss">notice</span><span class="p">:</span> <span class="s2">&quot;new comment added!&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">current_photo</span><span class="p">,</span> <span class="ss">notice</span><span class="p">:</span> <span class="s2">&quot;oops, xxit happens!&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After done with spec, and all green, we are happy to close the ticket and move on to next issue. Wait a minute, someone is whispering &#8220;Be RESTful&#8221;,  sounds like we are doing something wrong, we are not RESTful enough! We all know the above code will work and do the job, the QA will happily accept your work and everything seems to be working flawlessly. Just one thing, we are not keeping up to RESTful rules, we are adding new action besides the 7 actions given to us, that&#8217;s not good enough. Let&#8217;s fix it:</p>
+
+<ul>
+<li>remove the action <code>comment</code> defined in the <code>PhotosController</code></li>
+<li>edit the <code>config/routes.rb</code> and change it to:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">resources</span> <span class="ss">:photos</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:comments</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:create</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>add a new <code>CommentsController</code> and it should have action <code>create</code> within it</li>
+<li>move the <code>photos_controller#comment</code> spec to <code>comments_controller#create</code></li>
+</ul>
+
+
+<p>that&#8217;s all, the refactor is all about moving things around, nothing more. But it&#8217;s important for two reasons:</p>
+
+<ul>
+<li>we keep the <code>PhotosController</code> only concerned photos, that&#8217;s <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">SRP</a></li>
+<li>we make it clear that the comments related action should go to its own controller, we are telling the developer reading this code later after us that we have two resources defined in our app, one is photo, another is comment.</li>
+</ul>
+
+
+<p>Yes, RESTful is all about resource.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -146,6 +349,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">Customize the polymorphic URL for STI</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/03/09/sortable-bootstrap-table-with-sti/">Sortable bootstrap table with STI</a>
       </li>
     
@@ -159,10 +366,6 @@
     
       <li class="post">
         <a href="/blog/2013/07/30/polymorphic-image-styles-using-paperclip/">Polymorphic image styles with Paperclip</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/">gotcha: get DateTime.now work with ActiveRecord::Base scope</a>
       </li>
     
   </ul>
