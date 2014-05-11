@@ -9,7 +9,7 @@
   <meta name="author" content="Hao Liu">
 
   
-  <meta name="description" content="I am really happy to announce that the red_light is released, you can have fancy login effortlessly incorporated into your Rails application. Check &hellip;">
+  <meta name="description" content="Sandi Metz (@sandimetz) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,61 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/">My Thoughts on Sandi Metz&#8217;s Talk on Testing Magic</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-22T22:29:00+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
+
+<p>I learned a lot from the talk that I don&#8217;t have to have 100% coverage for the test suite. Here&#8217;s some pickups you can take away:</p>
+
+<ul>
+<li><em>DO NOT</em> test private method, since they are the most unstable part in the whole object</li>
+<li><em>DO NOT</em> test out-going query message, it has no side effect to the message receiver</li>
+<li><em>DO</em> test the out-going command message, ensure you have told the message receiver something it should execute on its part. If you heard about <a href="http://pragprog.com/articles/tell-dont-ask">&#8220;Tell, don&#8217;t ask&#8221;</a>, you know that one object should <strong>tell</strong> another object to do something instead of <strong>asking</strong> the state of another object and make the decision based on the returned result. Since the out-going command message has side effect to the message receiver, you need to make sure the message is sent out</li>
+<li><em>DO</em> test the incoming query message, just ensure the return result is expected</li>
+<li><em>DO</em> test the incoming command message, just ensure the changes is made as expected</li>
+</ul>
+
+
+<p>That&#8217;s all, happy testing. BTW, keep two things in mind for good OO and testing:</p>
+
+<ul>
+<li>Dependency injection</li>
+<li>Tell, don&#8217;t ask</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -385,6 +440,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/11/i-am-happy-i-have-you-in-my-life/">I am happy I have you in my life</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/04/22/convert-chinese-character-kanji-to-telegraph-code-and-vice-versa-like-a-boss/">Convert Chinese character (Kanji) to Telegraph Code and vice versa like a boss</a>
       </li>
     
@@ -398,10 +457,6 @@
     
       <li class="post">
         <a href="/blog/2014/01/10/miss-you-my-grandpa/">爷爷，走好</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/08/18/think-in-ios-way/">As a Rails dev, you may want to think in the iOS way</a>
       </li>
     
   </ul>
