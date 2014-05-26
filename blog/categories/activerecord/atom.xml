@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ActiveRecord | Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/blog/categories/activerecord/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-26T08:25:09+08:00</updated>
+  <updated>2014-05-26T08:27:20+08:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -53,7 +53,7 @@ class Person &lt; ActiveRecord::Base
 
 <p>  def notify_police</p>
 
-<pre><code>if @name_or_dob_changed?
+<pre><code>if @name_or_dob_changed
   PoliceNotification.notify(self)
 end
 </code></pre>
