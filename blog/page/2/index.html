@@ -9,7 +9,7 @@
   <meta name="author" content="Hao Liu">
 
   
-  <meta name="description" content="I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting &hellip;">
+  <meta name="description" content="If you are not familiar with ActiveRecord::Base.transaction, i highly recommend you go through the document. As you can see, Exceptions will force a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,253 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/">Gotcha: ActiveRecord::Base.transaction Stops Working Within Callbacks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-07T22:45:00+08:00" pubdate data-updated="true">Jun 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
+
+<p>As you can see,</p>
+
+<blockquote><p>Exceptions will force a ROLLBACK that returns the database to the state before the transaction began.</p></blockquote>
+
+<p>that means the following code should rollback the transaction if any of the <code>deposit!</code> fails</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># transaction.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">after_create</span> <span class="ss">:transfer_credits</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">attr_accessible</span> <span class="ss">:credits</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:send_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:recv_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">transfer_credits</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">send_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="o">-</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>      <span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># transaction_spec.rb</span>
+</span><span class='line'><span class="n">context</span> <span class="s2">&quot;exception raised&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@send_account</span> <span class="o">=</span> <span class="n">create</span> <span class="ss">:account</span><span class="p">,</span> <span class="ss">:credits</span> <span class="o">=&gt;</span> <span class="mi">1000</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">send_account</span> <span class="o">=</span> <span class="vi">@send_account</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">credits</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">recv_account</span> <span class="o">=</span> <span class="n">double</span><span class="p">(</span><span class="ss">:account</span><span class="p">)</span><span class="o">.</span><span class="n">as_null_object</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:recv_account</span><span class="p">)</span> <span class="p">{</span><span class="n">recv_account</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">recv_account</span><span class="o">.</span><span class="n">should_receive</span><span class="p">(</span><span class="ss">:deposit!</span><span class="p">)</span><span class="o">.</span><span class="n">and_raise</span><span class="p">(</span><span class="no">StandardError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Transfer failed!&quot;</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;should not transfer the credits&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">reload</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">credits</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="mi">1000</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But the result is the spec fails and says</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Failures:
+</span><span class='line'>
+</span><span class='line'>  1<span class="o">)</span> Transaction status exception raised should not transfer the credits
+</span><span class='line'>     Failure/Error: @send_account.credits.should <span class="o">==</span> 1000
+</span><span class='line'>       expected: 1000
+</span><span class='line'>            got: 999 <span class="o">(</span><span class="nv">using</span> <span class="o">==)</span>
+</span><span class='line'>     <span class="c"># ./spec/models/transaction_spec.rb:185:in `block (4 levels) in &lt;top (required)&gt;&#39;</span>
+</span><span class='line'>
+</span><span class='line'>Finished in 1.73 seconds
+</span><span class='line'>1 example, 1 failure
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It did deduct the credits from the <code>send_account</code> by 1 while i was expecting it should do nothing to it. What&#8217;s going wrong, the doc says it will rollback the transaction, then I tried to test if calling <code>transfer_credits</code> explicitly is going to work. And yes, it works. Here&#8217;s the revised version:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># transaction.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">attr_accessible</span> <span class="ss">:credits</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:send_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:recv_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">transfer_credits</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">send_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="o">-</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>      <span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># transaction_spec.rb</span>
+</span><span class='line'><span class="n">describe</span> <span class="s2">&quot;#transfer_credits&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@send_account</span> <span class="o">=</span> <span class="n">create</span> <span class="ss">:account</span><span class="p">,</span> <span class="ss">:credits</span> <span class="o">=&gt;</span> <span class="mi">1000</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">send_account</span> <span class="o">=</span> <span class="vi">@send_account</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">credits</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">recv_account</span> <span class="o">=</span> <span class="n">double</span><span class="p">(</span><span class="ss">:account</span><span class="p">)</span><span class="o">.</span><span class="n">as_null_object</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:recv_account</span><span class="p">)</span> <span class="p">{</span><span class="n">recv_account</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">recv_account</span><span class="o">.</span><span class="n">should_receive</span><span class="p">(</span><span class="ss">:deposit!</span><span class="p">)</span><span class="o">.</span><span class="n">and_raise</span><span class="p">(</span><span class="no">StandardError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Transfer failed!&quot;</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;should not transfer the credits&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">transfer_credits</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">reload</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">credits</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="mi">1000</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>GOTCHA: DO NOT place ATOMIC operations within callbacks, like <code>before_*</code>, <code>after_*</code></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -594,6 +841,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/26/rails-4-gotcha-nested-form-created-new-child-object-every-time-parent-object-is-updated/">Rails 4 Gotcha: nested form created new child object every time parent object is updated</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/05/26/how-to-capture-changes-in-after-commit/">How to capture changes in after_commit</a>
       </li>
     
@@ -607,10 +858,6 @@
     
       <li class="post">
         <a href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">Customize the polymorphic URL for STI</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/03/09/sortable-bootstrap-table-with-sti/">Sortable bootstrap table with STI</a>
       </li>
     
   </ul>
