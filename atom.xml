@@ -4,7 +4,7 @@
   <title><![CDATA[Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-11T11:47:52+08:00</updated>
+  <updated>2014-05-26T08:25:09+08:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -12,6 +12,75 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[How to capture changes in after_commit]]></title>
+    <link href="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/"/>
+    <updated>2014-05-26T07:43:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit</id>
+    <content type="html"><![CDATA[<p>@flyerhzm has done a great job on when you should use <code>after_commmit</code> instead of <code>after_save</code> in this <a href="http://rails-bestpractices.com/posts/695-use-after_commit">post</a>. One thing is sometimes you may want to check if there&#8217;s any changes to a specific column before executing the code within the callback. Sadly, since it is in <code>after_commit</code> block, all the changes have been persisted into the database, you will never got a chance to check if there&#8217;s any changes to any columns, that&#8217;s the problem we are going to attack.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Person</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">after_commit</span> <span class="ss">:notify_police</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:update</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">notify_police</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">name_changed?</span> <span class="ow">or</span> <span class="nb">self</span><span class="o">.</span><span class="n">dob_changed?</span>
+</span><span class='line'>      <span class="no">PoliceNotification</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Obviously, you don&#8217;t want to bother the police every time you change your hair style is changed, believe me, you don&#8217;t want to do that. The fact is we need to let the police know once you change your name or your DOB. You will find a tricky bug in the above code, the <code>PoliceNotification.notify(self)</code> will never get triggered because in the <code>after_commit</code> block, you will never see any changes to any columns. So, the way I fix this problem is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Person</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">after_save</span> <span class="ss">:prepare_to_notify_police</span>
+</span><span class='line'>  <span class="n">after_commit</span> <span class="ss">:notify_police</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:update</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">prepare_to_notify_police</span>
+</span><span class='line'>      <span class="vi">@name_or_dob_changed</span> <span class="o">=</span> <span class="nb">self</span><span class="o">.</span><span class="n">name_changed?</span> <span class="ow">or</span> <span class="nb">self</span><span class="o">.</span><span class="n">dob_changed?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">notify_police</span>
+</span><span class='line'>    <span class="k">if</span> <span class="vi">@name_or_dob_changed</span><span class="p">?</span>
+</span><span class='line'>      <span class="no">PoliceNotification</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, I set a flag <code>@name_or_dob_changed</code> within the <code>after_save</code> block, as long as you do not reload the object, you can do the check based on the flag in the <code>after_commit</code> even after all the changes are persisted into database.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[I am happy I have you in my life]]></title>

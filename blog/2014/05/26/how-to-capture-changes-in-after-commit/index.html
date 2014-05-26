@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Sortable bootstrap table with STI - Hao's Thoughts</title>
+  <title>How to capture changes in after_commit - Hao's Thoughts</title>
   <meta name="author" content="Hao Liu">
 
   
-  <meta name="description" content="You are working on a Rails 3 project and your client asks you to sort a list of items and display the items in order, the first thing come to your &hellip;">
+  <meta name="description" content="@flyerhzm has done a great job on when you should use after_commmit instead of after_save in this post. One thing is sometimes you may want to check &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/">
+  <link rel="canonical" href="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -68,7 +68,7 @@
   
   <header>
     
-      <h1 class="entry-title">Sortable Bootstrap Table With STI</h1>
+      <h1 class="entry-title">How to Capture Changes in After_commit</h1>
     
     
       <p class="meta">
@@ -84,20 +84,14 @@
   
 
 
-<time datetime="2014-03-09T20:17:00+08:00" pubdate data-updated="true">Mar 9<span>th</span>, 2014</time>
+<time datetime="2014-05-26T07:43:00+08:00" pubdate data-updated="true">May 26<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>You are working on a Rails 3 project and your client asks you to sort a list of items and display the items in order, the first thing come to your mind might be acts_as_list and jQuery sortable, you are not alone. I found that acts_as_list requires the items to be sorted belong to a parent, sadly, that&#8217;s not the case I am facing, the items I am trying to sort belongs to nothing, <a href="https://github.com/mixonic/ranked-model">RankedModel</a> come to rescue.</p>
-
-<blockquote><p>ranked-model is a modern row sorting library built for Rails 3 &amp; 4. It uses ARel aggressively and is better optimized than most other libraries.</p></blockquote>
-
-<p>Lucky me, i found <a href="http://benw.me/posts/sortable-bootstrap-tables">this great post</a> introducing how to get RankdedModel work with Bootstrap table and jQuery sortable.</p>
-
-<p>The requirement I am facing is bit more complex than the one explained in the above article, I have a list of items, which is an array of items of different types stored in one single tables, say, I have the following object layout:</p>
+<div class="entry-content"><p>@flyerhzm has done a great job on when you should use <code>after_commmit</code> instead of <code>after_save</code> in this <a href="http://rails-bestpractices.com/posts/695-use-after_commit">post</a>. One thing is sometimes you may want to check if there&#8217;s any changes to a specific column before executing the code within the callback. Sadly, since it is in <code>after_commit</code> block, all the changes have been persisted into the database, you will never got a chance to check if there&#8217;s any changes to any columns, that&#8217;s the problem we are going to attack.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -109,48 +103,55 @@
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Employee</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
-</span><span class='line'>  <span class="kp">include</span> <span class="no">RankedModel</span>
-</span><span class='line'>  <span class="n">ranks</span> <span class="ss">:title</span>
-</span><span class='line'><span class="k">end</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Person</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">after_commit</span> <span class="ss">:notify_police</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:update</span><span class="o">]</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Manager</span> <span class="o">&lt;</span> <span class="no">Employee</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Salesman</span> <span class="o">&lt;</span> <span class="no">Employee</span>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">notify_police</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">name_changed?</span> <span class="ow">or</span> <span class="nb">self</span><span class="o">.</span><span class="n">dob_changed?</span>
+</span><span class='line'>      <span class="no">PoliceNotification</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Say, I have a list of employees, including managers, salesman shown in order, I can now drag and drop to sort the items in the list, great, ready to charge the customer? Not yet, you will find it will only sort the managers and salesmen separately, it will not sort them as a whole entity, dig into the source of RankedModel, i found something really interesting,</p>
+<p>Obviously, you don&#8217;t want to bother the police every time you change your hair style is changed, believe me, you don&#8217;t want to do that. The fact is we need to let the police know once you change your name or your DOB. You will find a tricky bug in the above code, the <code>PoliceNotification.notify(self)</code> will never get triggered because in the <code>after_commit</code> block, you will never see any changes to any columns. So, the way I fix this problem is:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#lib/ranked-model/ranker.rb</span>
-</span><span class='line'><span class="k">def</span> <span class="nf">instance_class</span>
-</span><span class='line'>  <span class="n">ranker</span><span class="o">.</span><span class="n">class_name</span><span class="o">.</span><span class="n">nil?</span> <span class="p">?</span> <span class="n">instance</span><span class="o">.</span><span class="n">class</span> <span class="p">:</span> <span class="n">ranker</span><span class="o">.</span><span class="n">class_name</span><span class="o">.</span><span class="n">constantize</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Person</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">after_save</span> <span class="ss">:prepare_to_notify_police</span>
+</span><span class='line'>  <span class="n">after_commit</span> <span class="ss">:notify_police</span><span class="p">,</span> <span class="ss">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:create</span><span class="p">,</span> <span class="ss">:update</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">prepare_to_notify_police</span>
+</span><span class='line'>      <span class="vi">@name_or_dob_changed</span> <span class="o">=</span> <span class="nb">self</span><span class="o">.</span><span class="n">name_changed?</span> <span class="ow">or</span> <span class="nb">self</span><span class="o">.</span><span class="n">dob_changed?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">notify_police</span>
+</span><span class='line'>    <span class="k">if</span> <span class="vi">@name_or_dob_changed</span><span class="p">?</span>
+</span><span class='line'>      <span class="no">PoliceNotification</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This where the RankedModel decides which class to use as the finder, the problem it could not sort managers and salesmen as a whole entity is because it will use <code>Manager</code> and <code>Salesman</code> separately to do the sorting, RankedModel found this problem before I do, and they provide an option <code>class_name</code> to unify the finder lookup, the solution is:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Employee</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
-</span><span class='line'>  <span class="kp">include</span> <span class="no">RankedModel</span>
-</span><span class='line'>  <span class="n">ranks</span> <span class="ss">:title</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Employee&quot;</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Back to the items listing page, viola, it sorts the <code>Manager</code> and <code>Salesman</code> as a whole entity.</p>
-
-<p>Happy hacking!</p>
+<p>As you can see, I set a flag <code>@name_or_dob_changed</code> within the <code>after_save</code> block, as long as you do not reload the object, you can do the check based on the flag in the <code>after_commit</code> even after all the changes are persisted into database.</p>
 </div>
 
 
@@ -173,12 +174,12 @@
   
 
 
-<time datetime="2014-03-09T20:17:00+08:00" pubdate data-updated="true">Mar 9<span>th</span>, 2014</time>
+<time datetime="2014-05-26T07:43:00+08:00" pubdate data-updated="true">May 26<span>th</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/rails/'>Rails</a>
+    <a class='category' href='/blog/categories/activerecord/'>ActiveRecord</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>
   
 </span>
 
@@ -187,7 +188,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/" data-via="leomayleomay" data-counturl="https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/" data-via="leomayleomay" data-counturl="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/" >Tweet</a>
   
   
   
@@ -196,10 +197,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/01/10/miss-you-my-grandpa/" title="Previous Post: 爷爷，走好">&laquo; 爷爷，走好</a>
+        <a class="basic-alignment left" href="/blog/2014/05/11/i-am-happy-i-have-you-in-my-life/" title="Previous Post: I am happy I have you in my life">&laquo; I am happy I have you in my life</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/" title="Next Post: Customize the polymorphic URL for STI">Customize the polymorphic URL for STI &raquo;</a>
       
     </p>
   </footer>
@@ -294,8 +293,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/';
-        var disqus_url = 'https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/';
+        var disqus_identifier = 'https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/';
+        var disqus_url = 'https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/';
         var disqus_script = 'embed.js';
       
     (function () {

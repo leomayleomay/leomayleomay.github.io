@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>My thoughts on Sandi Metz's talk on testing magic - Hao's Thoughts</title>
+  <title>Category: ActiveRecord - Hao's Thoughts</title>
   <meta name="author" content="Hao Liu">
 
   
-  <meta name="description" content="Sandi Metz (@sandimetz) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk &hellip;">
+  <meta name="description" content="Category: ActiveRecord">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/">
+  <link rel="canonical" href="https://leomayleomay.github.ioblog/categories/activerecord/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -64,112 +64,36 @@
   <div id="main">
     <div id="content">
       <div>
-<article class="hentry" role="article">
+<article role="article">
   
   <header>
-    
-      <h1 class="entry-title">My Thoughts on Sandi Metz's Talk on Testing Magic</h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-05-22T22:29:00+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
-        
-      </p>
+    <h1 class="entry-title">Category: ActiveRecord</h1>
     
   </header>
-
-
-<div class="entry-content"><p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
-
-<p>I learned a lot from the talk that I don&#8217;t have to have 100% coverage for the test suite. Here&#8217;s some pickups you can take away:</p>
-
-<ul>
-<li><em>DO NOT</em> test private method, since they are the most unstable part in the whole object</li>
-<li><em>DO NOT</em> test out-going query message, it has no side effect to the message receiver</li>
-<li><em>DO</em> test the out-going command message, ensure you have told the message receiver something it should execute on its part. If you heard about <a href="http://pragprog.com/articles/tell-dont-ask">&#8220;Tell, don&#8217;t ask&#8221;</a>, you know that one object should <strong>tell</strong> another object to do something instead of <strong>asking</strong> the state of another object and make the decision based on the returned result. Since the out-going command message has side effect to the message receiver, you need to make sure the message is sent out</li>
-<li><em>DO</em> test the incoming query message, just ensure the return result is expected</li>
-<li><em>DO</em> test the incoming command message, just ensure the changes is made as expected</li>
-</ul>
-
-
-<p>That&#8217;s all, happy testing. BTW, keep two things in mind for good OO and testing:</p>
-
-<ul>
-<li>Dependency injection</li>
-<li>Tell, don&#8217;t ask</li>
-</ul>
-
-</div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">Hao Liu</span></span>
-
-      
-
-
-
-
-
+  <div id="blog-archives" class="category">
 
 
 
   
+  <h2>2014</h2>
+
+<article>
+  
+<h1><a href="/blog/2014/05/26/how-to-capture-changes-in-after-commit/">How to capture changes in after_commit</a></h1>
+<time datetime="2014-05-26T07:43:00+08:00" pubdate><span class='month'>May</span> <span class='day'>26</span> <span class='year'>2014</span></time>
+
+<footer>
+  <span class="categories">posted in <a class='category' href='/blog/categories/activerecord/'>ActiveRecord</a>, <a class='category' href='/blog/categories/rails/'>Rails</a></span>
+</footer>
 
 
-<time datetime="2013-05-22T22:29:00+08:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/oo/'>OO</a>, <a class='category' href='/blog/categories/rails/'>rails</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/sandimetz/'>sandimetz</a>, <a class='category' href='/blog/categories/test/'>test</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/" data-via="leomayleomay" data-counturl="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/" >Tweet</a>
-  
-  
-  
-</div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2013/05/20/new-gem-released-red-light-for-fancy-login/" title="Previous Post: New Gem Released: red light for fancy login">&laquo; New Gem Released: red light for fancy login</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2013/05/27/fancy-login-with-red-light/" title="Next Post: Fancy login with red light">Fancy login with red light &raquo;</a>
-      
-    </p>
-  </footer>
 </article>
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
-  </section>
+
+  
+</article>
 
 </div>
 
@@ -253,10 +177,7 @@
       var disqus_shortname = 'acts-as-human';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/';
-        var disqus_url = 'https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
