@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: REST | Hao's Thoughts]]></title>
+  <link href="https://leomayleomay.github.io/blog/categories/rest/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2014-05-26T22:09:34+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[take a REST]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/05/07/take-a-rest/"/>
+    <updated>2013-05-07T23:16:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/05/07/take-a-rest</id>
+    <content type="html"><![CDATA[<p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is a buzzword in the modern web development world. "Be RESTful", "Keep up to the RESTful rules" is usually thought as one of the best practices we need to keep in mind.</p>
+
+<p>We are all blessed as a <a href="http://www.ruby-lang.org/en/">Ruby</a> &amp; <a href="http://rubyonrails.org/">Rails</a> developer, since Rails has already had REST baked within its heart, for example,</p>
+
+<p>```ruby</p>
+
+<h1>config/routes.rb</h1>
+
+<p>resources :photos</p>
+
+<p>```</p>
+
+<p>will generate 7 routes for us:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left"> HTTP Verb </th>
+<th align="left"> Path  </th>
+<th align="right"> action used for </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td align="left">GET    /photos             </td>
+<td align="left"> index             </td>
+<td align="right"> display a list of all photos</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/new         </td>
+<td align="left"> new               </td>
+<td align="right"> return an HTML form for creating a new photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">POST   /photos             </td>
+<td align="left"> create            </td>
+<td align="right"> create a new photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/:id         </td>
+<td align="left"> show              </td>
+<td align="right"> display a specific photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/:id/edit    </td>
+<td align="left"> edit              </td>
+<td align="right"> return an HTML form for editing a photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">PUT    /photos/:id         </td>
+<td align="left"> update            </td>
+<td align="right"> update a specific photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">DELETE /photos/:id         </td>
+<td align="left"> delete            </td>
+<td align="right"> delete a specific photo</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<p>Awesome! we can also adjust which actions we want via editing the resources defined in the <code>config/routes.rb</code>:</p>
+
+<p>```ruby</p>
+
+<h1>config/routes.rb</h1>
+
+<p>resources :photos, :only => [:index, :show]</p>
+
+<p>```</p>
+
+<p>Now we have only two actions left for the <code>PhotosController</code>, and they are <code>GET /photos</code> and <code>GET /photos/:id</code>, any other requests except these two will result in an error. So far so, good, until one day, the boss came over and told you to add comment to the photos, we want the user to comment the photos, who doesn't? OK, roll up the sleeves, and change the <code>config/routes.rb</code> to:</p>
+
+<p>```ruby</p>
+
+<h1>config/routes.rb</h1>
+
+<p>resources :photos, :only => [:new, :create] do
+  member do</p>
+
+<pre><code>post :comment
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>that will give us a new routes <code>POST /photos/:id/comment</code>, and we add the corresponding action to the <code>PhotosController</code>:</p>
+
+<p>```ruby
+class PhotosController &lt; ApplicationController
+  before_filter :find_the_current_user
+  before_filter :find_the_current_photo</p>
+
+<p>  def comment</p>
+
+<pre><code>comment = current_user.comments.new(params[:comment])
+comment.commentable = current_photo
+
+if comment.save
+  redirect_to current_photo, notice: "new comment added!"
+else
+  redirect_to current_photo, notice: "oops, xxit happens!"
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>After done with spec, and all green, we are happy to close the ticket and move on to next issue. Wait a minute, someone is whispering "Be RESTful",  sounds like we are doing something wrong, we are not RESTful enough! We all know the above code will work and do the job, the QA will happily accept your work and everything seems to be working flawlessly. Just one thing, we are not keeping up to RESTful rules, we are adding new action besides the 7 actions given to us, that's not good enough. Let's fix it:</p>
+
+<ul>
+<li>remove the action <code>comment</code> defined in the <code>PhotosController</code></li>
+<li>edit the <code>config/routes.rb</code> and change it to:</li>
+</ul>
+
+
+<p><code>ruby
+  resources :photos, :only =&gt; [:new, :create]
+  resources :comments, :only =&gt; [:create]
+</code>
+* add a new <code>CommentsController</code> and it should have action <code>create</code> within it
+* move the <code>photos_controller#comment</code> spec to <code>comments_controller#create</code></p>
+
+<p>that's all, the refactor is all about moving things around, nothing more. But it's important for two reasons:</p>
+
+<ul>
+<li>we keep the <code>PhotosController</code> only concerned photos, that's <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">SRP</a></li>
+<li>we make it clear that the comments related action should go to its own controller, we are telling the developer reading this code later after us that we have two resources defined in our app, one is photo, another is comment.</li>
+</ul>
+
+
+<p>Yes, RESTful is all about resource.</p>
+]]></content>
+  </entry>
+  
+</feed>

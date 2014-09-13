@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ActiveRecord | Hao's Thoughts]]></title>
+  <link href="https://leomayleomay.github.io/blog/categories/activerecord/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2014-05-26T22:09:34+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to capture changes in after_commit]]></title>
+    <link href="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/"/>
+    <updated>2014-05-26T07:43:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit</id>
+    <content type="html"><![CDATA[<p>@flyerhzm has done a great job on when you should use <code>after_commmit</code> instead of <code>after_save</code> in this <a href="http://rails-bestpractices.com/posts/695-use-after_commit">post</a>. One thing is sometimes you may want to check if there's any changes to a specific column before executing the code within the callback. Sadly, since it is in <code>after_commit</code> block, all the changes have been persisted into the database, you will never got a chance to check if there's any changes to any columns, that's the problem we are going to attack.</p>
+
+<p>```ruby
+class Person &lt; ActiveRecord::Base
+  after_commit :notify_police, only: [:create, :update]</p>
+
+<p>  private
+  def notify_police</p>
+
+<pre><code>if self.name_changed? or self.dob_changed?
+  PoliceNotification.notify(self)
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>Obviously, you don't want to bother the police every time you change your hair style is changed, believe me, you don't want to do that. The fact is we need to let the police know once you change your name or your DOB. You will find a tricky bug in the above code, the <code>PoliceNotification.notify(self)</code> will never get triggered because in the <code>after_commit</code> block, you will never see any changes to any columns. So, the way I fix this problem is:</p>
+
+<p>```ruby
+class Person &lt; ActiveRecord::Base
+  after_save :prepare_to_notify_police
+  after_commit :notify_police, only: [:create, :update]</p>
+
+<p>  private
+  def prepare_to_notify_police</p>
+
+<pre><code>@name_or_dob_changed = self.name_changed? or self.dob_changed?
+</code></pre>
+
+<p>  end</p>
+
+<p>  def notify_police</p>
+
+<pre><code>if @name_or_dob_changed
+  PoliceNotification.notify(self)
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>As you can see, I set a flag <code>@name_or_dob_changed</code> within the <code>after_save</code> block, as long as you do not reload the object, you can do the check based on the flag in the <code>after_commit</code> even after all the changes are persisted into database.</p>
+]]></content>
+  </entry>
+  
+</feed>

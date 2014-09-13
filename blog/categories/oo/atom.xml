@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: OO | Hao's Thoughts]]></title>
+  <link href="https://leomayleomay.github.io/blog/categories/oo/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2014-05-26T22:09:34+08:00</updated>
+  <id>https://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[As a Rails dev, you may want to think in the iOS way]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way/"/>
+    <updated>2013-08-18T16:02:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way</id>
+    <content type="html"><![CDATA[<p>I am not sure this is a good idea, but I think it worths a post to share the idea to the people who're suffering/fighting messy dependencies within their applications.</p>
+
+<p>Anyone who's been programming in Objective-C should be familiar with the delegate/protocol, you can barely make any practical iOS application without knowing the delegate/protocol. For those of you who have never been in the iOS world, this is the quick definition from <a href="http://developer.apple.com/library/ios/documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithProtocols/WorkingwithProtocols.html">apple official document</a></p>
+
+<blockquote><p>In the world of object-oriented programming, it’s important to be able to define a set of behavior that is expected of an object in a given situation. As an example, a table view expects to be able to communicate with a data source object in order to find out what it is required to display. This means that the data source must respond to a specific set of messages that the table view might send.</p></blockquote>
+
+<p>I am not a language expert, I have no idea who invented this, but this is definitely a brilliant idea in my opinion, you just fire a method on your collaborator, and you will be notified what to do next. You don't ask, you tell, sounds familiar? Yeah, people in Hollywood are always saying:</p>
+
+<blockquote><p>You don't call us, we will call you</p></blockquote>
+
+<p>It's also well known as <a href="http://c2.com/cgi/wiki?TellDontAsk">Tell, don't ask</a>.</p>
+
+<p>You know what, you don't have to be an iOS developer to benefit from this, this is generic you can apply it to your Rails applications.</p>
+
+<p>```ruby</p>
+
+<p>class PostsController &lt; ApplicationController
+  def new</p>
+
+<pre><code>@post = Post.new
+</code></pre>
+
+<p>  end</p>
+
+<p>  def create</p>
+
+<pre><code>@post = Post.new(params[:post])
+
+if @post.save
+  redirect_to posts_path, :notice =&gt; "Post created succesfully!"
+else
+  render :new
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>The above snippet is a classical <code>PostsController</code> that does nothing wrong, the coming part is the same logic implemented with delegate/protocol.</p>
+
+<p>```ruby</p>
+
+<p>class PostsController &lt; ApplicationController
+  def new</p>
+
+<pre><code>@post = Post.new
+</code></pre>
+
+<p>  end</p>
+
+<p>  def create</p>
+
+<pre><code>service = PostService.new
+service.delegate = self
+service.create_new_post(params[:post])
+</code></pre>
+
+<p>  end</p>
+
+<p>  # PostServiceProtocol begins
+  def new_post_created_successfully(post)</p>
+
+<pre><code>redirect_to posts_path, :notice =&gt; "Post created succesfully!"
+</code></pre>
+
+<p>  end</p>
+
+<p>  def new_post_not_created_because_of(errors)</p>
+
+<pre><code>render :new
+</code></pre>
+
+<p>  end
+  # PostServiceProtocol ends
+end</p>
+
+<p>class PostService
+  attr_writer :delegate</p>
+
+<p>  def create_new_post(params)</p>
+
+<pre><code>post = Post.new(params)
+
+if post.save
+  self.delegate.new_post_created_successfully(post)
+else
+  self.delegate.new_post_not_created_because_of(post.errors)
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  protected
+  def delegate</p>
+
+<pre><code>@delegate ||= NullPostServiceDelegate.new
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>class NullPostServiceDelegate
+  def new_post_created_successfully(post)</p>
+
+<pre><code># no-op
+</code></pre>
+
+<p>  end</p>
+
+<p>  def new_post_not_created_because_of(errors)</p>
+
+<pre><code># no-op
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>If you are still with me, you may ask: "why bother?", why we want to do this as long as the first version is working perfectly, my explanation is you never know who's going to call <code>PostService#create_new_post</code>. For now, it's just <code>PostsController</code> doing that. Imagine the Rails application is providing API backend for a mobile app, someone is going to create new post via API, are we going to duplicate the logic as well as the tests? I don't think so.</p>
+
+<p>```ruby</p>
+
+<p>class Api::PostsController &lt; Api::Base
+  def create</p>
+
+<pre><code>service = PostService.new
+service.delegate = self
+service.create_new_post(params[:post])
+</code></pre>
+
+<p>  end</p>
+
+<p>  # PostServiceProtocol begins
+  def new_post_created_successfully(post)</p>
+
+<pre><code>render :json =&gt; post.to_json
+</code></pre>
+
+<p>  end</p>
+
+<p>  def new_post_not_created_because_of(errors)</p>
+
+<pre><code>render :json =&gt; {
+  :errors =&gt; errors
+}.to_json
+</code></pre>
+
+<p>  end
+  # PostServiceProtocol ends
+end</p>
+
+<p>```</p>
+
+<p>You can see from the above example, I am having the same logic for creating post for the web endpoint and API endpoint, it's consitent.</p>
+
+<p>For now, there's no way in plain Ruby to define protocol for a class, there's also no way to have a class corform to specific protocol, I am considering have a gem for that, if you are interested pair with me, ping me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
+    <updated>2013-07-30T15:02:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
+    <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
+
+<p>```ruby</p>
+
+<p>class Image &lt; ActiveRecord::Base
+  belongs_to :viewable, :polymorphic => true</p>
+
+<p>  validate :viewable, :presence => true</p>
+
+<p>  has_attached_file :attachment
+end</p>
+
+<p>class User &lt; ActiveRecord::Base
+  has_one :avatar, :class_name => "Image", :as => :viewable, :dependent => :destroy
+end</p>
+
+<p>class Album &lt; ActiveRecord::Base
+  has_one :cover, :class_name => "Image", :as => :viewable, :dependent => :destroy
+end</p>
+
+<p>```</p>
+
+<p>As you can see, an image belongs to a <code>viewable</code> object, the <code>viweable</code> object could be an instance of <code>User</code> or <code>Album</code> or anything else.</p>
+
+<p>The presumption here is that the <code>cover</code> is having a set of styles different from with the <code>avatar</code>, but we only have one <code>Image</code> class, what are we supposed to do? We dispatch. We let the <code>viewable</code> object decide the styles of the image.</p>
+
+<p>```ruby
+class Image &lt; ActiveRecord::Base
+  belongs_to :viewable, :polymorphic => true</p>
+
+<p>  validate :viewable, :presence => true</p>
+
+<p>  has_attached_file :attachment,</p>
+
+<pre><code>:styles =&gt; Proc.new {|a| a.instance.viewable.image_styles}
+</code></pre>
+
+<p>end</p>
+
+<p>class User &lt; ActiveRecord::Base
+  has_one :avatar, :class_name => "Image", :as => :viewable, :dependent => :destroy</p>
+
+<p>  def image_styles</p>
+
+<pre><code>{
+  :thumb =&gt; "30x30&gt;",
+  :medium =&gt; "100x100&gt;"
+}
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>class Album &lt; ActiveRecord::Base
+  has_one :cover, :class_name => "Image", :as => :viewable, :dependent => :destroy</p>
+
+<p>  def image_styles</p>
+
+<pre><code>{
+  :cart =&gt; "50x50&gt;"
+  :large =&gt; "300x300&gt;"
+}
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>We now have one <code>Image</code> class having different styles for different <code>viewable</code> objects, we can also do the same thing to <code>default_url</code> and <code>path</code>. Leave me a comment if you have better solution, thanks a lot.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[My thoughts on Sandi Metz's talk on testing magic]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/"/>
+    <updated>2013-05-22T22:29:00+08:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic</id>
+    <content type="html"><![CDATA[<p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
+
+<p>I learned a lot from the talk that I don't have to have 100% coverage for the test suite. Here's some pickups you can take away:</p>
+
+<ul>
+<li><em>DO NOT</em> test private method, since they are the most unstable part in the whole object</li>
+<li><em>DO NOT</em> test out-going query message, it has no side effect to the message receiver</li>
+<li><em>DO</em> test the out-going command message, ensure you have told the message receiver something it should execute on its part. If you heard about <a href="http://pragprog.com/articles/tell-dont-ask">"Tell, don't ask"</a>, you know that one object should <strong>tell</strong> another object to do something instead of <strong>asking</strong> the state of another object and make the decision based on the returned result. Since the out-going command message has side effect to the message receiver, you need to make sure the message is sent out</li>
+<li><em>DO</em> test the incoming query message, just ensure the return result is expected</li>
+<li><em>DO</em> test the incoming command message, just ensure the changes is made as expected</li>
+</ul>
+
+
+<p>That's all, happy testing. BTW, keep two things in mind for good OO and testing:</p>
+
+<ul>
+<li>Dependency injection</li>
+<li>Tell, don't ask</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
