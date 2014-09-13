@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ActiveRecord | Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/blog/categories/activerecord/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-26T22:09:34+08:00</updated>
+  <updated>2014-09-13T21:48:12+12:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[How to capture changes in after_commit]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/"/>
-    <updated>2014-05-26T07:43:00+08:00</updated>
+    <updated>2014-05-26T07:43:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit</id>
     <content type="html"><![CDATA[<p>@flyerhzm has done a great job on when you should use <code>after_commmit</code> instead of <code>after_save</code> in this <a href="http://rails-bestpractices.com/posts/695-use-after_commit">post</a>. One thing is sometimes you may want to check if there's any changes to a specific column before executing the code within the callback. Sadly, since it is in <code>after_commit</code> block, all the changes have been persisted into the database, you will never got a chance to check if there's any changes to any columns, that's the problem we are going to attack.</p>
 

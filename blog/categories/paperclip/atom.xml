@@ -4,7 +4,7 @@
   <title><![CDATA[Category: paperclip | Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/blog/categories/paperclip/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-26T22:09:34+08:00</updated>
+  <updated>2014-09-13T21:48:12+12:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
-    <updated>2013-07-30T15:02:00+08:00</updated>
+    <updated>2013-07-30T15:02:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
     <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
 

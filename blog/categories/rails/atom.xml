@@ -4,7 +4,7 @@
   <title><![CDATA[Category: rails | Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/blog/categories/rails/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-26T22:09:34+08:00</updated>
+  <updated>2014-09-13T21:48:12+12:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[As a Rails dev, you may want to think in the iOS way]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way/"/>
-    <updated>2013-08-18T16:02:00+08:00</updated>
+    <updated>2013-08-18T16:02:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way</id>
     <content type="html"><![CDATA[<p>I am not sure this is a good idea, but I think it worths a post to share the idea to the people who're suffering/fighting messy dependencies within their applications.</p>
 
@@ -183,7 +183,7 @@ end</p>
   <entry>
     <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
-    <updated>2013-07-30T15:02:00+08:00</updated>
+    <updated>2013-07-30T15:02:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
     <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
 
@@ -260,7 +260,7 @@ end
   <entry>
     <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
-    <updated>2013-06-29T19:12:00+08:00</updated>
+    <updated>2013-06-29T19:12:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
     <content type="html"><![CDATA[<p>```ruby</p>
 
@@ -328,7 +328,7 @@ end
   <entry>
     <title type="html"><![CDATA[Gotcha: ActiveRecord::Base.transaction stops working within callbacks]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/"/>
-    <updated>2013-06-07T22:45:00+08:00</updated>
+    <updated>2013-06-07T22:45:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks</id>
     <content type="html"><![CDATA[<p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
 
@@ -483,7 +483,7 @@ end</p>
   <entry>
     <title type="html"><![CDATA[Fancy login with red light]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
-    <updated>2013-05-27T17:53:00+08:00</updated>
+    <updated>2013-05-27T17:53:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
     <content type="html"><![CDATA[<p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
 
