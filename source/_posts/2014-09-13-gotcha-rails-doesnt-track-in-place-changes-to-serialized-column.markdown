@@ -16,22 +16,18 @@ end
 
 ```ruby
 
-\>> a = Answers.new(options: [1, 2, 3])
+>> a = Answers.new(options: [1, 2, 3])
 
-\>> a.options
-
+>> a.options
 => [1, 2, 3]
 
-\>> a.changed?
-
+>> a.changed?
 => false
 
-\>> a.options << 4
-
+>> a.options << 4
 => [1, 2, 3, 4]
 
-\>> a.changed?
-
+>> a.changed?
 => false
 ```
 
@@ -40,24 +36,20 @@ As commented by Jose Valim [link](https://rails.lighthouseapp.com/projects/8994/
 
 ```ruby
 
-\>> a = Answers.new(options: [1, 2, 3])
+>> a = Answers.new(options: [1, 2, 3])
 
-\>> a.options
-
+>> a.options
 => [1, 2, 3]
 
-\>> a.changed?
-
+>> a.changed?
 => false
 
-\>> a.options << 4
-
+>> a.options << 4
 => [1, 2, 3, 4]
 
-\>> a.options_will_change!
+>> a.options_will_change!
 
-\>> a.changed?
-
+>> a.changed?
 => true
 
 ```
@@ -73,7 +65,7 @@ end
 
 ```ruby
 
-\# spec/requests/questions_controller_spec.rb
+# spec/controllers/questions_controller_spec.rb
 
 describe QuestionsController do
   describe "PUT /update" do
@@ -88,7 +80,7 @@ describe QuestionsController do
       }
       
       a1.reload
-      expect(a1.options).to eq [1, 2, 3, 4] # FAILED!!
+      expect(a1.options).to eq [1, 2, 3, 4] # FAIL!!
     end
   end
 end
