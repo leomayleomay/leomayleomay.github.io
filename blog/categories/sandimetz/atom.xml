@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: sandimetz | Hao's Thoughts]]></title>
+  <link href="https://leomayleomay.github.io/blog/categories/sandimetz/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2014-09-13T21:49:46+12:00</updated>
+  <id>https://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[My thoughts on Sandi Metz's talk on testing magic]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/"/>
+    <updated>2013-05-22T22:29:00+12:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic</id>
+    <content type="html"><![CDATA[<p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
+
+<p>I learned a lot from the talk that I don't have to have 100% coverage for the test suite. Here's some pickups you can take away:</p>
+
+<ul>
+<li><em>DO NOT</em> test private method, since they are the most unstable part in the whole object</li>
+<li><em>DO NOT</em> test out-going query message, it has no side effect to the message receiver</li>
+<li><em>DO</em> test the out-going command message, ensure you have told the message receiver something it should execute on its part. If you heard about <a href="http://pragprog.com/articles/tell-dont-ask">"Tell, don't ask"</a>, you know that one object should <strong>tell</strong> another object to do something instead of <strong>asking</strong> the state of another object and make the decision based on the returned result. Since the out-going command message has side effect to the message receiver, you need to make sure the message is sent out</li>
+<li><em>DO</em> test the incoming query message, just ensure the return result is expected</li>
+<li><em>DO</em> test the incoming command message, just ensure the changes is made as expected</li>
+</ul>
+
+
+<p>That's all, happy testing. BTW, keep two things in mind for good OO and testing:</p>
+
+<ul>
+<li>Dependency injection</li>
+<li>Tell, don't ask</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

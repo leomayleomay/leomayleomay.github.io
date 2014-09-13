@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: OSS | Hao's Thoughts]]></title>
+  <link href="https://leomayleomay.github.io/blog/categories/oss/atom.xml" rel="self"/>
+  <link href="https://leomayleomay.github.io/"/>
+  <updated>2014-09-13T21:49:46+12:00</updated>
+  <id>https://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fancy login with red light]]></title>
+    <link href="https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
+    <updated>2013-05-27T17:53:00+12:00</updated>
+    <id>https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
+    <content type="html"><![CDATA[<p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
+
+<p>It's fancy because it detects the links and forms requiring authencation in a fancy way. I am going to use <a href="https://github.com/plataformatec/devise">Devise</a> for authentication in the following example app, and you will learn how to have fancy login within your app.</p>
+
+<p>Generate the app</p>
+
+<p><code>bash
+$ rails new fancy_login_app
+</code></p>
+
+<p>Generate the home controller</p>
+
+<p><code>bash
+$ rails g controller home index
+</code></p>
+
+<p>Generate the controller requiring authentications</p>
+
+<p><code>bash
+$ rails g controller posts new create
+</code></p>
+
+<p>Add <a href="https://github.com/plataformatec/devise">Devise</a> and <a href="https://github.com/leomayleomay/red_light">red_light</a> to the Gemfile</p>
+
+<p><code>ruby
+gem 'devise'
+gem 'red_light'
+</code></p>
+
+<p>Install the gems</p>
+
+<p><code>bash
+$ bundle install
+$ rails g devise:install
+$ rails g red_light:install
+</code></p>
+
+<p>Configure Devise views</p>
+
+<p><code>bash
+$ rails g devise:views
+</code></p>
+
+<p>The <code>config/routes.rb</code> should be something like</p>
+
+<p>```ruby
+devise_scope :user do
+  devise_for :users, :controllers => { :sessions => "sessions" }</p>
+
+<p>  get "/login", :to => "sessions#new"
+end</p>
+
+<p>resources :posts, :only => [:new, :create]</p>
+
+<p>root :to => "home#index"
+```</p>
+
+<p>Change <code>app/controllers/posts_controller.rb</code> to something like</p>
+
+<p>```ruby
+class PostsController &lt; ApplicationController
+  before_filter authenticate_user!</p>
+
+<p>  def new
+  end</p>
+
+<p>  def create
+  end
+end
+```</p>
+
+<p>Change <code>app/views/home/index.html.erb</code> to something like</p>
+
+<p><code>ruby
+&lt;%= link_to "New Post", new_post_path %&gt;
+</code></p>
+
+<p>Fire the webrick</p>
+
+<p><code>bash
+$ rails s
+</code></p>
+
+<p>Visit <code>localhost:3000</code>, inspect the "New Post" link, you fill find the interesting <code>rel</code></p>
+
+<p><img class="left" src="/images/fancy_login_rel.jpg" width="685" height="24" title="'fancy_login_rel'" ></p>
+
+<p><code>red_light</code> add that <code>rel</code> to the link requiring authentication auto-magically. With the <code>rel</code>, you can play some javascript tricks to present a modal view when the link is clicked, here's a <a href="https://fancy-login.herokuapp.com">demo</a>.</p>
+
+<p>You can also customize the <code>config/initializers/red_light.rb</code> to tell the <code>red_light</code> which <code>before_filter</code> should be auto blocked, for now, it's only <code>authenticate_user!</code> there.</p>
+]]></content>
+  </entry>
+  
+</feed>

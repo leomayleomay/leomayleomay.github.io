@@ -1,0 +1,946 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hao's Thoughts</title>
+  <meta name="author" content="Hao Liu">
+
+  
+  <meta name="description" content="If you are not familiar with ActiveRecord::Base.transaction, i highly recommend you go through the document. As you can see, Exceptions will force a &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="https://leomayleomay.github.io/blog/page/2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Hao's Thoughts" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Hao's Thoughts</a></h1>
+  
+    <h2>Ruby, Rails, Objective-C and everything else</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:leomayleomay.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/resume">Resume</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/">Gotcha: ActiveRecord::Base.transaction Stops Working Within Callbacks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-07T22:45:00+12:00" pubdate data-updated="true">Jun 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
+
+<p>As you can see,</p>
+
+<blockquote><p>Exceptions will force a ROLLBACK that returns the database to the state before the transaction began.</p></blockquote>
+
+<p>that means the following code should rollback the transaction if any of the <code>deposit!</code> fails</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># transaction.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">after_create</span> <span class="ss">:transfer_credits</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">attr_accessible</span> <span class="ss">:credits</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:send_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:recv_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">transfer_credits</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">send_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="o">-</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>      <span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># transaction_spec.rb</span>
+</span><span class='line'><span class="n">context</span> <span class="s2">&quot;exception raised&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@send_account</span> <span class="o">=</span> <span class="n">create</span> <span class="ss">:account</span><span class="p">,</span> <span class="ss">:credits</span> <span class="o">=&gt;</span> <span class="mi">1000</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">send_account</span> <span class="o">=</span> <span class="vi">@send_account</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">credits</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">recv_account</span> <span class="o">=</span> <span class="n">double</span><span class="p">(</span><span class="ss">:account</span><span class="p">)</span><span class="o">.</span><span class="n">as_null_object</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:recv_account</span><span class="p">)</span> <span class="p">{</span><span class="n">recv_account</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">recv_account</span><span class="o">.</span><span class="n">should_receive</span><span class="p">(</span><span class="ss">:deposit!</span><span class="p">)</span><span class="o">.</span><span class="n">and_raise</span><span class="p">(</span><span class="no">StandardError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Transfer failed!&quot;</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;should not transfer the credits&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">reload</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">credits</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="mi">1000</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But the result is the spec fails and says</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Failures:
+</span><span class='line'>
+</span><span class='line'>  1<span class="o">)</span> Transaction status exception raised should not transfer the credits
+</span><span class='line'>     Failure/Error: @send_account.credits.should <span class="o">==</span> 1000
+</span><span class='line'>       expected: 1000
+</span><span class='line'>            got: 999 <span class="o">(</span><span class="nv">using</span> <span class="o">==)</span>
+</span><span class='line'>     <span class="c"># ./spec/models/transaction_spec.rb:185:in `block (4 levels) in &lt;top (required)&gt;&#39;</span>
+</span><span class='line'>
+</span><span class='line'>Finished in 1.73 seconds
+</span><span class='line'>1 example, 1 failure
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It did deduct the credits from the <code>send_account</code> by 1 while i was expecting it should do nothing to it. What&#8217;s going wrong, the doc says it will rollback the transaction, then I tried to test if calling <code>transfer_credits</code> explicitly is going to work. And yes, it works. Here&#8217;s the revised version:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># transaction.rb</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Transaction</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">attr_accessible</span> <span class="ss">:credits</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:send_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>  <span class="n">belongs_to</span> <span class="ss">:recv_account</span><span class="p">,</span> <span class="ss">:class_name</span> <span class="o">=&gt;</span> <span class="s2">&quot;Account&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">transfer_credits</span>
+</span><span class='line'>    <span class="k">begin</span>
+</span><span class='line'>      <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span><span class="o">.</span><span class="n">transaction</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">send_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="o">-</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>          <span class="n">recv_account</span><span class="o">.</span><span class="n">deposit!</span><span class="p">(</span><span class="n">credits</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+</span><span class='line'>      <span class="no">Rails</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># transaction_spec.rb</span>
+</span><span class='line'><span class="n">describe</span> <span class="s2">&quot;#transfer_credits&quot;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">before</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@send_account</span> <span class="o">=</span> <span class="n">create</span> <span class="ss">:account</span><span class="p">,</span> <span class="ss">:credits</span> <span class="o">=&gt;</span> <span class="mi">1000</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@transaction</span> <span class="o">=</span> <span class="no">Transaction</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">send_account</span> <span class="o">=</span> <span class="vi">@send_account</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">credits</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">recv_account</span> <span class="o">=</span> <span class="n">double</span><span class="p">(</span><span class="ss">:account</span><span class="p">)</span><span class="o">.</span><span class="n">as_null_object</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">stub</span><span class="p">(</span><span class="ss">:recv_account</span><span class="p">)</span> <span class="p">{</span><span class="n">recv_account</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">recv_account</span><span class="o">.</span><span class="n">should_receive</span><span class="p">(</span><span class="ss">:deposit!</span><span class="p">)</span><span class="o">.</span><span class="n">and_raise</span><span class="p">(</span><span class="no">StandardError</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Transfer failed!&quot;</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;should not transfer the credits&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="vi">@transaction</span><span class="o">.</span><span class="n">transfer_credits</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">reload</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@send_account</span><span class="o">.</span><span class="n">credits</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="mi">1000</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>GOTCHA: DO NOT place ATOMIC operations within callbacks, like <code>before_*</code>, <code>after_*</code></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/27/fancy-login-with-red-light/">Fancy Login With Red Light</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-27T17:53:00+12:00" pubdate data-updated="true">May 27<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
+
+<p>It&#8217;s fancy because it detects the links and forms requiring authencation in a fancy way. I am going to use <a href="https://github.com/plataformatec/devise">Devise</a> for authentication in the following example app, and you will learn how to have fancy login within your app.</p>
+
+<p>Generate the app</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rails new fancy_login_app
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generate the home controller</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rails g controller home index
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generate the controller requiring authentications</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rails g controller posts new create
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Add <a href="https://github.com/plataformatec/devise">Devise</a> and <a href="https://github.com/leomayleomay/red_light">red_light</a> to the Gemfile</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span>
+</span><span class='line'><span class="n">gem</span> <span class="s1">&#39;red_light&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Install the gems</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>bundle install
+</span><span class='line'><span class="nv">$ </span>rails g devise:install
+</span><span class='line'><span class="nv">$ </span>rails g red_light:install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Configure Devise views</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rails g devise:views
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>config/routes.rb</code> should be something like</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">devise_scope</span> <span class="ss">:user</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">devise_for</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">:controllers</span> <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:sessions</span> <span class="o">=&gt;</span> <span class="s2">&quot;sessions&quot;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">get</span> <span class="s2">&quot;/login&quot;</span><span class="p">,</span> <span class="ss">:to</span> <span class="o">=&gt;</span> <span class="s2">&quot;sessions#new&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:posts</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">root</span> <span class="ss">:to</span> <span class="o">=&gt;</span> <span class="s2">&quot;home#index&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change <code>app/controllers/posts_controller.rb</code> to something like</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PostsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="n">authenticate_user!</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">create</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change <code>app/views/home/index.html.erb</code> to something like</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">&lt;%=</span> <span class="n">link_to</span> <span class="s2">&quot;New Post&quot;</span><span class="p">,</span> <span class="n">new_post_path</span> <span class="o">%&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Fire the webrick</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rails s
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Visit <code>localhost:3000</code>, inspect the &#8220;New Post&#8221; link, you fill find the interesting <code>rel</code></p>
+
+<p><img class="left" src="/images/fancy_login_rel.jpg" width="685" height="24" title="'fancy_login_rel'" ></p>
+
+<p><code>red_light</code> add that <code>rel</code> to the link requiring authentication auto-magically. With the <code>rel</code>, you can play some javascript tricks to present a modal view when the link is clicked, here&#8217;s a <a href="https://fancy-login.herokuapp.com">demo</a>.</p>
+
+<p>You can also customize the <code>config/initializers/red_light.rb</code> to tell the <code>red_light</code> which <code>before_filter</code> should be auto blocked, for now, it&#8217;s only <code>authenticate_user!</code> there.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/">My Thoughts on Sandi Metz&#8217;s Talk on Testing Magic</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-22T22:29:00+12:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
+
+<p>I learned a lot from the talk that I don&#8217;t have to have 100% coverage for the test suite. Here&#8217;s some pickups you can take away:</p>
+
+<ul>
+<li><em>DO NOT</em> test private method, since they are the most unstable part in the whole object</li>
+<li><em>DO NOT</em> test out-going query message, it has no side effect to the message receiver</li>
+<li><em>DO</em> test the out-going command message, ensure you have told the message receiver something it should execute on its part. If you heard about <a href="http://pragprog.com/articles/tell-dont-ask">&#8220;Tell, don&#8217;t ask&#8221;</a>, you know that one object should <strong>tell</strong> another object to do something instead of <strong>asking</strong> the state of another object and make the decision based on the returned result. Since the out-going command message has side effect to the message receiver, you need to make sure the message is sent out</li>
+<li><em>DO</em> test the incoming query message, just ensure the return result is expected</li>
+<li><em>DO</em> test the incoming command message, just ensure the changes is made as expected</li>
+</ul>
+
+
+<p>That&#8217;s all, happy testing. BTW, keep two things in mind for good OO and testing:</p>
+
+<ul>
+<li>Dependency injection</li>
+<li>Tell, don&#8217;t ask</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/20/new-gem-released-red-light-for-fancy-login/">New Gem Released: Red Light for Fancy Login</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-20T00:32:00+12:00" pubdate data-updated="true">May 20<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am really happy to announce that the <a href="https://github.com/leomayleomay/red_light">red_light</a> is released, you can have fancy login effortlessly incorporated into your Rails application. Check it out, and tell me what you think about it. Tutorial will come soon.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/07/take-a-rest/">Take a REST</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-07T23:16:00+12:00" pubdate data-updated="true">May 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is a buzzword in the modern web development world. &#8220;Be RESTful&#8221;, &#8220;Keep up to the RESTful rules&#8221; is usually thought as one of the best practices we need to keep in mind.</p>
+
+<p>We are all blessed as a <a href="http://www.ruby-lang.org/en/">Ruby</a> &amp; <a href="http://rubyonrails.org/">Rails</a> developer, since Rails has already had REST baked within its heart, for example,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:photos</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>will generate 7 routes for us:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left"> HTTP Verb </th>
+<th align="left"> Path  </th>
+<th align="right"> action used for </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td align="left">GET    /photos             </td>
+<td align="left"> index             </td>
+<td align="right"> display a list of all photos</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/new         </td>
+<td align="left"> new               </td>
+<td align="right"> return an HTML form for creating a new photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">POST   /photos             </td>
+<td align="left"> create            </td>
+<td align="right"> create a new photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/:id         </td>
+<td align="left"> show              </td>
+<td align="right"> display a specific photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">GET    /photos/:id/edit    </td>
+<td align="left"> edit              </td>
+<td align="right"> return an HTML form for editing a photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">PUT    /photos/:id         </td>
+<td align="left"> update            </td>
+<td align="right"> update a specific photo</td>
+</tr>
+<tr>
+<td></td>
+<td align="left">DELETE /photos/:id         </td>
+<td align="left"> delete            </td>
+<td align="right"> delete a specific photo</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr />
+
+<p>Awesome! we can also adjust which actions we want via editing the resources defined in the <code>config/routes.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:photos</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:index</span><span class="p">,</span> <span class="ss">:show</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we have only two actions left for the <code>PhotosController</code>, and they are <code>GET /photos</code> and <code>GET /photos/:id</code>, any other requests except these two will result in an error. So far so, good, until one day, the boss came over and told you to add comment to the photos, we want the user to comment the photos, who doesn&#8217;t? OK, roll up the sleeves, and change the <code>config/routes.rb</code> to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># config/routes.rb</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">resources</span> <span class="ss">:photos</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">member</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">post</span> <span class="ss">:comment</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>that will give us a new routes <code>POST /photos/:id/comment</code>, and we add the corresponding action to the <code>PhotosController</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">PhotosController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:find_the_current_user</span>
+</span><span class='line'>  <span class="n">before_filter</span> <span class="ss">:find_the_current_photo</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">comment</span>
+</span><span class='line'>    <span class="n">comment</span> <span class="o">=</span> <span class="n">current_user</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:comment</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">comment</span><span class="o">.</span><span class="n">commentable</span> <span class="o">=</span> <span class="n">current_photo</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">comment</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">current_photo</span><span class="p">,</span> <span class="ss">notice</span><span class="p">:</span> <span class="s2">&quot;new comment added!&quot;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">redirect_to</span> <span class="n">current_photo</span><span class="p">,</span> <span class="ss">notice</span><span class="p">:</span> <span class="s2">&quot;oops, xxit happens!&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After done with spec, and all green, we are happy to close the ticket and move on to next issue. Wait a minute, someone is whispering &#8220;Be RESTful&#8221;,  sounds like we are doing something wrong, we are not RESTful enough! We all know the above code will work and do the job, the QA will happily accept your work and everything seems to be working flawlessly. Just one thing, we are not keeping up to RESTful rules, we are adding new action besides the 7 actions given to us, that&#8217;s not good enough. Let&#8217;s fix it:</p>
+
+<ul>
+<li>remove the action <code>comment</code> defined in the <code>PhotosController</code></li>
+<li>edit the <code>config/routes.rb</code> and change it to:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">resources</span> <span class="ss">:photos</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="o">]</span>
+</span><span class='line'>  <span class="n">resources</span> <span class="ss">:comments</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="ss">:create</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>add a new <code>CommentsController</code> and it should have action <code>create</code> within it</li>
+<li>move the <code>photos_controller#comment</code> spec to <code>comments_controller#create</code></li>
+</ul>
+
+
+<p>that&#8217;s all, the refactor is all about moving things around, nothing more. But it&#8217;s important for two reasons:</p>
+
+<ul>
+<li>we keep the <code>PhotosController</code> only concerned photos, that&#8217;s <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">SRP</a></li>
+<li>we make it clear that the comments related action should go to its own controller, we are telling the developer reading this code later after us that we have two resources defined in our app, one is photo, another is comment.</li>
+</ul>
+
+
+<p>Yes, RESTful is all about resource.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/07/open-source-the-bpdukpt/">Open Source the BPDUKPT</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-07T22:49:00+12:00" pubdate data-updated="true">May 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am happy to announce I just released the v0.1 of <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>.</p>
+
+<p>We&#8217;ve been processing credit card payments from the iOS device more and more, and we are facing a common problem, <strong><em>security</em></strong>. The genius invented the <a href="http://en.wikipedia.org/wiki/Derived_unique_key_per_transaction">DUKPT</a> to ensure the credit card data will never be hijacked by some middleman between our client app and our server, that&#8217;s really great for the card holders. But for the developer, we&#8217;ve got no luck to have a ready-to-go solution to decrypt the magnetic data captured from the card reader.</p>
+
+<p>Here comes the <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>, you can decrypt magnetic strips like a boss.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objective-c'><span class='line'><span class="cp">#include &quot;BPDUKPTParser.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">NSString</span> <span class="o">*</span><span class="n">magData</span> <span class="o">=</span> <span class="s">@&quot;foobarbaz&quot;</span><span class="p">;</span> <span class="c1">// this is the magnetic strips data captured from the card reader</span>
+</span><span class='line'><span class="n">BPDUKPTIDTechParser</span> <span class="o">*</span><span class="n">parser</span> <span class="o">=</span> <span class="p">[[</span><span class="n">BPDUKPTIDTechParser</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithHID:</span><span class="n">magData</span><span class="p">];</span>
+</span><span class='line'><span class="n">BPDUKPTParsingResult</span> <span class="o">*</span><span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">parser</span> <span class="n">parse</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the encrypted track 1 is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">track1</span><span class="p">);</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the encrypted track 2 is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">track2</span><span class="p">);</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the encrypted track 3 is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">track3</span><span class="p">);</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;the KSN is: %@&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">ksn</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tell <a href="mailto:leomayleomay@gmail.com">me</a> what you think about it, and please help to make it better.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/05/26/rails-4-gotcha-nested-form-created-new-child-object-every-time-parent-object-is-updated/">Rails 4 Gotcha: nested form created new child object every time parent object is updated</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/26/how-to-capture-changes-in-after-commit/">How to capture changes in after_commit</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/11/i-am-happy-i-have-you-in-my-life/">I am happy I have you in my life</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/22/convert-chinese-character-kanji-to-telegraph-code-and-vice-versa-like-a-boss/">Convert Chinese character (Kanji) to Telegraph Code and vice versa like a boss</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">Customize the polymorphic URL for STI</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/leomayleomay">@leomayleomay</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'leomayleomay',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Hao Liu -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'acts-as-human';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
