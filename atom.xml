@@ -4,7 +4,7 @@
   <title><![CDATA[Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-26T22:09:34+08:00</updated>
+  <updated>2014-09-13T21:49:46+12:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Rails 4 Gotcha: nested form created new child object every time parent object is updated]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/05/26/rails-4-gotcha-nested-form-created-new-child-object-every-time-parent-object-is-updated/"/>
-    <updated>2014-05-26T08:46:00+08:00</updated>
+    <updated>2014-05-26T08:46:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/05/26/rails-4-gotcha-nested-form-created-new-child-object-every-time-parent-object-is-updated</id>
     <content type="html"><![CDATA[<p>I&#8217;ve been playing with Rails 4 recently, the strong parameter, as you all know, is a new feature just appeared in Rails 4. It will get really tricky when you are posting a nested form.</p>
 
@@ -133,7 +133,7 @@
   <entry>
     <title type="html"><![CDATA[How to capture changes in after_commit]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit/"/>
-    <updated>2014-05-26T07:43:00+08:00</updated>
+    <updated>2014-05-26T07:43:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/05/26/how-to-capture-changes-in-after-commit</id>
     <content type="html"><![CDATA[<p>@flyerhzm has done a great job on when you should use <code>after_commmit</code> instead of <code>after_save</code> in this <a href="http://rails-bestpractices.com/posts/695-use-after_commit">post</a>. One thing is sometimes you may want to check if there&#8217;s any changes to a specific column before executing the code within the callback. Sadly, since it is in <code>after_commit</code> block, all the changes have been persisted into the database, you will never got a chance to check if there&#8217;s any changes to any columns, that&#8217;s the problem we are going to attack.</p>
 
@@ -202,7 +202,7 @@
   <entry>
     <title type="html"><![CDATA[I am happy I have you in my life]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/05/11/i-am-happy-i-have-you-in-my-life/"/>
-    <updated>2014-05-11T11:13:00+08:00</updated>
+    <updated>2014-05-11T11:13:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/05/11/i-am-happy-i-have-you-in-my-life</id>
     <content type="html"><![CDATA[<p>It&#8217;s been 12 years we know each other since 2002, I can never forget that summary vacation when I saw you, I didn&#8217;t know that was love.</p>
 
@@ -229,7 +229,7 @@
   <entry>
     <title type="html"><![CDATA[Convert Chinese character (Kanji) to Telegraph Code and vice versa like a boss]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/04/22/convert-chinese-character-kanji-to-telegraph-code-and-vice-versa-like-a-boss/"/>
-    <updated>2014-04-22T08:14:00+08:00</updated>
+    <updated>2014-04-22T08:14:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/04/22/convert-chinese-character-kanji-to-telegraph-code-and-vice-versa-like-a-boss</id>
     <content type="html"><![CDATA[<p>You may have run into the same situation with me, given a Chinese character, you want to find out the corresponding <a href="http://en.wikipedia.org/wiki/Chinese_telegraph_code">Chinese Telegraph Code</a>, there&#8217;re tons of utility tools online for that, but the thing is you want to do it on the server side, here&#8217;s a gem I am going to present to you: <a href="https://github.com/leomayleomay/ctc">ctc</a>, check it out and convert the Kanjie to CTC and vice versa like a boss, :)</p>
 ]]></content>
@@ -238,7 +238,7 @@
   <entry>
     <title type="html"><![CDATA[Customize the polymorphic URL for STI]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti/"/>
-    <updated>2014-03-24T18:19:00+08:00</updated>
+    <updated>2014-03-24T18:19:00+13:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/03/24/customize-the-polymorphic-url-for-sti</id>
     <content type="html"><![CDATA[<p>One thing I love Rails is it provides really handy URL helpers to the developers. Today, I am going to present you guys how to use <a href="http://api.rubyonrails.org/classes/ActionDispatch/Routing/PolymorphicRoutes.html">polymorphic_url</a> like a ninja.</p>
 
@@ -435,7 +435,7 @@
   <entry>
     <title type="html"><![CDATA[Sortable bootstrap table with STI]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti/"/>
-    <updated>2014-03-09T20:17:00+08:00</updated>
+    <updated>2014-03-09T20:17:00+13:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/03/09/sortable-bootstrap-table-with-sti</id>
     <content type="html"><![CDATA[<p>You are working on a Rails 3 project and your client asks you to sort a list of items and display the items in order, the first thing come to your mind might be acts_as_list and jQuery sortable, you are not alone. I found that acts_as_list requires the items to be sorted belong to a parent, sadly, that&#8217;s not the case I am facing, the items I am trying to sort belongs to nothing, <a href="https://github.com/mixonic/ranked-model">RankedModel</a> come to rescue.</p>
 
@@ -503,7 +503,7 @@
   <entry>
     <title type="html"><![CDATA[爷爷，走好]]></title>
     <link href="https://leomayleomay.github.io/blog/2014/01/10/miss-you-my-grandpa/"/>
-    <updated>2014-01-10T10:53:00+08:00</updated>
+    <updated>2014-01-10T10:53:00+13:00</updated>
     <id>https://leomayleomay.github.io/blog/2014/01/10/miss-you-my-grandpa</id>
     <content type="html"><![CDATA[<p>&#8220;时光时光慢些吧，不要让你再老了，我愿用我一切换你岁月长留&#8230;&#8230;&#8221;，不知不觉泪水模糊了双眼，心中隐隐作痛，呼吸变得困难，闭上眼睛，爷爷清瘦的脸庞缓缓浮现，微笑着，看着我。</p>
 
@@ -532,7 +532,7 @@
   <entry>
     <title type="html"><![CDATA[As a Rails dev, you may want to think in the iOS way]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way/"/>
-    <updated>2013-08-18T16:02:00+08:00</updated>
+    <updated>2013-08-18T16:02:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way</id>
     <content type="html"><![CDATA[<p>I am not sure this is a good idea, but I think it worths a post to share the idea to the people who&#8217;re suffering/fighting messy dependencies within their applications.</p>
 
@@ -738,7 +738,7 @@
   <entry>
     <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
-    <updated>2013-07-30T15:02:00+08:00</updated>
+    <updated>2013-07-30T15:02:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
     <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
 
@@ -849,7 +849,7 @@
   <entry>
     <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
-    <updated>2013-06-29T19:12:00+08:00</updated>
+    <updated>2013-06-29T19:12:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
     <content type="html"><![CDATA[<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -935,7 +935,7 @@
   <entry>
     <title type="html"><![CDATA[Gotcha: ActiveRecord::Base.transaction stops working within callbacks]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/"/>
-    <updated>2013-06-07T22:45:00+08:00</updated>
+    <updated>2013-06-07T22:45:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks</id>
     <content type="html"><![CDATA[<p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
 
@@ -1155,7 +1155,7 @@
   <entry>
     <title type="html"><![CDATA[Fancy login with red light]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
-    <updated>2013-05-27T17:53:00+08:00</updated>
+    <updated>2013-05-27T17:53:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
     <content type="html"><![CDATA[<p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
 
@@ -1282,7 +1282,7 @@
   <entry>
     <title type="html"><![CDATA[My thoughts on Sandi Metz's talk on testing magic]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic/"/>
-    <updated>2013-05-22T22:29:00+08:00</updated>
+    <updated>2013-05-22T22:29:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/22/my-thoughts-on-sandi-metzs-talk-on-testing-magic</id>
     <content type="html"><![CDATA[<p>Sandi Metz (<a href="https://twitter.com/sandimetz">@sandimetz</a>) never lets the audiences down, this time, she brought another great talk on testing. I highly recommend you at least walk through the <a href="https://speakerdeck.com/skmetz/magic-tricks-of-testing-railsconf">slides</a>, here is the <a href="http://www.confreaks.com/videos/2452-railsconf2013-the-magic-tricks-of-testing">video</a> if you are blessed.</p>
 
@@ -1310,7 +1310,7 @@
   <entry>
     <title type="html"><![CDATA[New Gem Released: red light for fancy login]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login/"/>
-    <updated>2013-05-20T00:32:00+08:00</updated>
+    <updated>2013-05-20T00:32:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/20/new-gem-released-red-light-for-fancy-login</id>
     <content type="html"><![CDATA[<p>I am really happy to announce that the <a href="https://github.com/leomayleomay/red_light">red_light</a> is released, you can have fancy login effortlessly incorporated into your Rails application. Check it out, and tell me what you think about it. Tutorial will come soon.</p>
 ]]></content>
@@ -1319,7 +1319,7 @@
   <entry>
     <title type="html"><![CDATA[take a REST]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/07/take-a-rest/"/>
-    <updated>2013-05-07T23:16:00+08:00</updated>
+    <updated>2013-05-07T23:16:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/07/take-a-rest</id>
     <content type="html"><![CDATA[<p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is a buzzword in the modern web development world. &#8220;Be RESTful&#8221;, &#8220;Keep up to the RESTful rules&#8221; is usually thought as one of the best practices we need to keep in mind.</p>
 
@@ -1495,7 +1495,7 @@
   <entry>
     <title type="html"><![CDATA[open source the BPDUKPT]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt/"/>
-    <updated>2013-05-07T22:49:00+08:00</updated>
+    <updated>2013-05-07T22:49:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/07/open-source-the-bpdukpt</id>
     <content type="html"><![CDATA[<p>I am happy to announce I just released the v0.1 of <a href="https://github.com/leomayleomay/BPDUKPT">BPDUKPT</a>.</p>
 

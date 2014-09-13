@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OSS | Hao's Thoughts]]></title>
   <link href="https://leomayleomay.github.io/blog/categories/oss/atom.xml" rel="self"/>
   <link href="https://leomayleomay.github.io/"/>
-  <updated>2014-05-26T22:09:34+08:00</updated>
+  <updated>2014-09-13T21:49:46+12:00</updated>
   <id>https://leomayleomay.github.io/</id>
   <author>
     <name><![CDATA[Hao Liu]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Fancy login with red light]]></title>
     <link href="https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light/"/>
-    <updated>2013-05-27T17:53:00+08:00</updated>
+    <updated>2013-05-27T17:53:00+12:00</updated>
     <id>https://leomayleomay.github.io/blog/2013/05/27/fancy-login-with-red-light</id>
     <content type="html"><![CDATA[<p>I am not saying you are wrong if you are still redirecting the visitor to http://your_killer_app/login to input his/her credentials before letting him/her access the authentication required resource. I am just introducing another way of showing login page to you, the fancy way.</p>
 
