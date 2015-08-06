@@ -8,9 +8,7 @@ footer: false
 
 -> **Liu Hao** <-
 
--> Qingdao, Shandong, P. R. China <-
-
--> Skype: leomayleomay <-
+-> Wellington, New Zealand <-
 
 -> Github: [leomayleomay](https://github.com/leomayleomay) <-
 
@@ -31,8 +29,8 @@ footer: false
 ##SKILLS
 
 * ###Programming
-	* _Ruby, Ruby on Rails (5 years)_
-	* _RSpec, Cucumber (4 years)_
+	* _Ruby, Ruby on Rails (7 years)_
+	* _RSpec, Cucumber (5 years)_
 	* _Objective-C, Cocoa Touch (1.5 years)_
 
 <br>
@@ -43,8 +41,16 @@ footer: false
 
 ##PROFESSIONAL EXPERIENCES
 
+* ###Powershop.co.nz	
+_Software engineer, Jul 2015 - Current_
+
+	* _[Powershop](http://www.powershop.co.nz/), supplies power to all kinds of homes and businesses in Australia and New Zealand. I am a problem solver trying to fix incidents, come up with elegant solutions to the new features as well as refactor the existing code to make it more readable._
+
+<br>
+
+
 * ###Bindo.com	
-_Payment Infrastructure Architect, Apr 2011 - Current_
+_Payment Infrastructure Architect, Apr 2011 - May 2014_
 
 	* _[Bindo.com](http://www.bindo.com/), is an online store which enables immediate local payment procurement for same-day product delivery that is merchant-specific. I am architecting and fine-tuning the multi-redundancy back-end within PCI-Compliant frameworks using DUKPT end-to-end encryption methodology._
 	
