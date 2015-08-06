@@ -9,7 +9,11 @@
   <meta name="author" content="Hao Liu">
 
   
-  <meta name="description" content="If you are not familiar with ActiveRecord::Base.transaction, i highly recommend you go through the document. As you can see, Exceptions will force a &hellip;">
+  <meta name="description" content="1
+2
+3
+class Invitation &lt; ActiveRecord::Base scope :expired, where(&quot;invitations.expired_at &lt; ?&quot;, DateTime.now)
+end It looks nothing &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +69,119 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/">Gotcha: Get DateTime.now Work With ActiveRecord::Base Scope</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-29T19:12:00+12:00" pubdate data-updated="true">Jun 29<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Invitation</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">scope</span> <span class="ss">:expired</span><span class="p">,</span> <span class="n">where</span><span class="p">(</span><span class="s2">&quot;invitations.expired_at &lt; ?&quot;</span><span class="p">,</span> <span class="no">DateTime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It looks nothing wrong with the above code at the first glance. Let&#8217;s have an interesting experiment,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>1.9.3p327 :001 &gt; Invitation.expired.to_sql
+</span><span class='line'> <span class="o">=</span>&gt; <span class="s2">&quot;SELECT `invitations`.* FROM `invitations`  WHERE (invitations.created_at &lt; &#39;2013-06-29 12:00:16&#39;)&quot;</span>
+</span><span class='line'>1.9.3p327 :002 &gt; DateTime.now.utc
+</span><span class='line'> <span class="o">=</span>&gt; Sat, 29 Jun 2013 12:35:50 +0000
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, the <code>DateTime.now.utc</code> returns &#8220;12:35:50&#8221;, while the SQL statement in the first line says &#8220;12:00:16&#8221;, there&#8217;s a mysterious gap between two of them. Actually, the &#8220;12:00:16&#8221; is the time I started the rails console, to be more precise, it&#8217;s the time the <code>app/models/invitation.rb</code> is loaded, it&#8217;s the time the <code>DateTime.now</code> in the <code>expired</code> scope was evaluated. This could be a serious problem for some of you, espeically under production environment, since once you deployed your application, the <code>DateTime.now</code> will keep what it was when the application was fully loaded by the application server, and it will be a constant value instead of a variable value as you imagined, the only chance it will get changed is the next time you deploy the application.</p>
+
+<p>The problem seems to be mysterious, but the solution to the problem is pretty straightforwarding, <code>lambda</code>, have <code>lambda</code> work with the scope will make the statements in the closure evaluated dynamically every time the scope is called.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Invitation</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">scope</span> <span class="ss">:expired</span><span class="p">,</span> <span class="nb">lambda</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">where</span><span class="p">(</span><span class="s2">&quot;invitations.expired_at &lt; ?&quot;</span><span class="p">,</span> <span class="no">DateTime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>1.9.3p327 :001 &gt; Invitation.expired.to_sql
+</span><span class='line'> <span class="o">=</span>&gt; <span class="s2">&quot;SELECT `invitations`.* FROM `invitations`  WHERE (invitations.created_at &lt; &#39;2013-06-29 12:40:11&#39;)&quot;</span>
+</span><span class='line'>1.9.3p327 :002 &gt; DateTime.now.utc
+</span><span class='line'> <span class="o">=</span>&gt; Sat, 29 Jun 2013 12:40:12 +0000
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It seems to be working this time. It&#8217;s time to add more spec to cover this.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">describe</span> <span class="no">Invitation</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">descirbe</span> <span class="s1">&#39;.expired&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">it</span> <span class="s2">&quot;should find all the expired invitations&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">invitation_1</span> <span class="o">=</span> <span class="no">Factory</span><span class="p">(</span><span class="ss">:invitation</span><span class="p">,</span> <span class="ss">:expired_at</span> <span class="o">=&gt;</span> <span class="no">DateTime</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="mi">1</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">invitation_2</span> <span class="o">=</span> <span class="no">Factory</span><span class="p">(</span><span class="ss">:invitation</span><span class="p">,</span> <span class="ss">:expired_at</span> <span class="o">=&gt;</span> <span class="no">DateTime</span><span class="o">.</span><span class="n">now</span> <span class="o">+</span> <span class="mi">1</span><span class="o">.</span><span class="n">seconds</span><span class="p">)</span>
+</span><span class='line'>  
+</span><span class='line'>    <span class="no">Invitation</span><span class="o">.</span><span class="n">expired</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">should</span> <span class="o">==</span> <span class="o">[</span><span class="n">invitation_1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above test will fail if you not using <code>lambda</code>, just keep in mind, test will save your ass every time.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -841,6 +958,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/09/13/gotcha-rails-doesnt-track-in-place-changes-to-serialized-column/">Gotcha: Rails doesn&#8217;t track in place changes to serialized column</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/05/26/rails-4-gotcha-nested-form-created-new-child-object-every-time-parent-object-is-updated/">Rails 4 Gotcha: nested form created new child object every time parent object is updated</a>
       </li>
     
@@ -854,10 +975,6 @@
     
       <li class="post">
         <a href="/blog/2014/04/22/convert-chinese-character-kanji-to-telegraph-code-and-vice-versa-like-a-boss/">Convert Chinese character (Kanji) to Telegraph Code and vice versa like a boss</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/03/24/customize-the-polymorphic-url-for-sti/">Customize the polymorphic URL for STI</a>
       </li>
     
   </ul>
