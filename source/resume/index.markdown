@@ -42,7 +42,7 @@ footer: false
 ##PROFESSIONAL EXPERIENCES
 
 * ###Powershop.co.nz	
-_Software engineer, Jul 2015 - Current_
+_Software engineer, Jul 2014 - Current_
 
 	* _[Powershop](http://www.powershop.co.nz/), supplies power to all kinds of homes and businesses in Australia and New Zealand. I am a problem solver trying to fix incidents, come up with elegant solutions to the new features as well as refactor the existing code to make it more readable._
 
