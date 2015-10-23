@@ -1,6 +1,6 @@
 1, local
 
-  rake new_post["Zombie Ninjas Attack: A survivor's retrospective"]
+  rake new_post\["Zombie Ninjas Attack: A survivor's retrospective"\]
   edit and save the markdown
   rake generate
   rake preview
