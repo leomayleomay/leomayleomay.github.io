@@ -23,14 +23,14 @@ footer: false
 
 * ###Qingdao University, Qingdao, Shandong, China, 09/2001-06/2005
 
-	_Bachelor Degree of Engineering, Major in Computer Science and Technology_	
+	_Bachelor Degree of Engineering, Major in Computer Science and Technology_
 
 
 ##SKILLS
 
 * ###Programming
-	* _Ruby, Ruby on Rails (7 years)_
-	* _RSpec, Cucumber (5 years)_
+	* _Ruby, Ruby on Rails (9 years)_
+	* _RSpec, Cucumber (7 years)_
 	* _Objective-C, Cocoa Touch (1.5 years)_
 
 <br>
@@ -41,19 +41,27 @@ footer: false
 
 ##PROFESSIONAL EXPERIENCES
 
-* ###Powershop.co.nz	
-_Software engineer, Jul 2014 - Current_
+* ###Cohort Solutions
+_Software engineer, Oct 2015 - Current_
+
+	* _[Cohort Solutions](http://www.cohortsolutions.com/), I work for the company on a range of web apps, from backend to frontend, for the backend, I am basically responsible for developing new features and fixing bugs for the services we have split into small chunks, for the frontend, it's more of React.
+
+<br>
+
+
+* ###Powershop.co.nz
+_Software engineer, Jul 2014 - Oct 2015_
 
 	* _[Powershop](http://www.powershop.co.nz/), supplies power to all kinds of homes and businesses in Australia and New Zealand. I am a problem solver trying to fix incidents, come up with elegant solutions to the new features as well as refactor the existing code to make it more readable._
 
 <br>
 
 
-* ###Bindo.com	
+* ###Bindo.com
 _Payment Infrastructure Architect, Apr 2011 - May 2014_
 
 	* _[Bindo.com](http://www.bindo.com/), is an online store which enables immediate local payment procurement for same-day product delivery that is merchant-specific. I am architecting and fine-tuning the multi-redundancy back-end within PCI-Compliant frameworks using DUKPT end-to-end encryption methodology._
-	
+
 	* _[Bindo POS](https://itunes.apple.com/us/app/bindo-pos/id550740615?mt=8), is a point of sale system and immediate single-instance marketplace for local retail businesses. I am building a multi-redundant hosting environment within a public / private cloud, managing all different aspects vital to retail store operations._
 	* _I am architecting addition layers of payment processing to the existing API within an encrypted and PCI-Compliant environment._
 
