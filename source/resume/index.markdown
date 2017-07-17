@@ -44,7 +44,7 @@ footer: false
 * ###Cohort Solutions
 _Software engineer, Oct 2015 - Current_
 
-	* _[Cohort Solutions](http://www.cohortsolutions.com/), I work for the company on a range of web apps, from backend to frontend, for the backend, I am basically responsible for developing new features and fixing bugs for the services we have split into small chunks, for the frontend, it's more of React.
+	* _[Cohort Solutions](http://www.cohortsolutions.com/), I work for the company on a range of web apps, from backend to frontend, for the backend, I am basically responsible for developing new features and fixing bugs for the services we have split into small chunks, for the frontend, it's more of React._
 
 <br>
 
