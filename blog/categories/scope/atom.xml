@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: scope | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/scope/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2017-07-17T15:27:07+12:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
+    <updated>2013-06-29T19:12:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
+    <content type="html"><![CDATA[<p>```ruby</p>
+
+<p>class Invitation &lt; ActiveRecord::Base
+  scope :expired, where("invitations.expired_at &lt; ?", DateTime.now)
+end</p>
+
+<p>```</p>
+
+<p>It looks nothing wrong with the above code at the first glance. Let's have an interesting experiment,</p>
+
+<p><code>bash
+1.9.3p327 :001 &gt; Invitation.expired.to_sql
+ =&gt; "SELECT `invitations`.* FROM `invitations`  WHERE (invitations.created_at &lt; '2013-06-29 12:00:16')"
+1.9.3p327 :002 &gt; DateTime.now.utc
+ =&gt; Sat, 29 Jun 2013 12:35:50 +0000
+</code></p>
+
+<p>As you can see, the <code>DateTime.now.utc</code> returns "12:35:50", while the SQL statement in the first line says "12:00:16", there's a mysterious gap between two of them. Actually, the "12:00:16" is the time I started the rails console, to be more precise, it's the time the <code>app/models/invitation.rb</code> is loaded, it's the time the <code>DateTime.now</code> in the <code>expired</code> scope was evaluated. This could be a serious problem for some of you, espeically under production environment, since once you deployed your application, the <code>DateTime.now</code> will keep what it was when the application was fully loaded by the application server, and it will be a constant value instead of a variable value as you imagined, the only chance it will get changed is the next time you deploy the application.</p>
+
+<p>The problem seems to be mysterious, but the solution to the problem is pretty straightforwarding, <code>lambda</code>, have <code>lambda</code> work with the scope will make the statements in the closure evaluated dynamically every time the scope is called.</p>
+
+<p>```ruby</p>
+
+<p>class Invitation &lt; ActiveRecord::Base
+  scope :expired, lambda {</p>
+
+<pre><code>where("invitations.expired_at &lt; ?", DateTime.now)
+</code></pre>
+
+<p>  }
+end</p>
+
+<p>```</p>
+
+<p><code>bash
+1.9.3p327 :001 &gt; Invitation.expired.to_sql
+ =&gt; "SELECT `invitations`.* FROM `invitations`  WHERE (invitations.created_at &lt; '2013-06-29 12:40:11')"
+1.9.3p327 :002 &gt; DateTime.now.utc
+ =&gt; Sat, 29 Jun 2013 12:40:12 +0000
+</code></p>
+
+<p>It seems to be working this time. It's time to add more spec to cover this.</p>
+
+<p>```ruby
+describe Invitation do
+  descirbe '.expired' do</p>
+
+<pre><code>it "should find all the expired invitations" do
+  invitation_1 = Factory(:invitation, :expired_at =&gt; DateTime.now - 1.seconds)
+  invitation_2 = Factory(:invitation, :expired_at =&gt; DateTime.now + 1.seconds)
+
+  Invitation.expired.to_a.should == [invitation_1]
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>The above test will fail if you not using <code>lambda</code>, just keep in mind, test will save your ass every time.</p>
+]]></content>
+  </entry>
+  
+</feed>

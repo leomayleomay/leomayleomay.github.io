@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: transaction | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/transaction/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2017-07-17T15:27:07+12:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Gotcha: ActiveRecord::Base.transaction stops working within callbacks]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/"/>
+    <updated>2013-06-07T22:45:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks</id>
+    <content type="html"><![CDATA[<p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
+
+<p>As you can see,</p>
+
+<blockquote><p>Exceptions will force a ROLLBACK that returns the database to the state before the transaction began.</p></blockquote>
+
+<p>that means the following code should rollback the transaction if any of the <code>deposit!</code> fails</p>
+
+<p>```ruby</p>
+
+<h1>transaction.rb</h1>
+
+<p>class Transaction &lt; ActiveRecord::Base
+  after_create :transfer_credits</p>
+
+<p>  attr_accessible :credits</p>
+
+<p>  belongs_to :send_account, :class_name => "Account"
+  belongs_to :recv_account, :class_name => "Account"</p>
+
+<p>  private
+  def transfer_credits</p>
+
+<pre><code>begin
+  ActiveRecord::Base.transaction do
+    send_account.deposit!(-credits) 
+    recv_account.deposit!(credits)
+  end
+rescue =&gt; e
+  Rails.logger.info e.message
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<h1>transaction_spec.rb</h1>
+
+<p>context "exception raised" do
+  before do</p>
+
+<pre><code>@send_account = create :account, :credits =&gt; 1000
+
+@transaction = Transaction.new
+@transaction.send_account = @send_account
+@transaction.credits = 1
+
+recv_account = double(:account).as_null_object
+@transaction.stub(:recv_account) {recv_account}
+recv_account.should_receive(:deposit!).and_raise(StandardError.new("Transfer failed!"))
+</code></pre>
+
+<p>  end</p>
+
+<p>  it "should not transfer the credits" do</p>
+
+<pre><code>@transaction.save
+
+@send_account.reload
+
+@send_account.credits.should == 1000
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>But the result is the spec fails and says</p>
+
+<p>```bash</p>
+
+<p>Failures:</p>
+
+<p>  1) Transaction status exception raised should not transfer the credits</p>
+
+<pre><code> Failure/Error: @send_account.credits.should == 1000
+   expected: 1000
+        got: 999 (using ==)
+ # ./spec/models/transaction_spec.rb:185:in `block (4 levels) in &lt;top (required)&gt;'
+</code></pre>
+
+<p>Finished in 1.73 seconds
+1 example, 1 failure</p>
+
+<p>```</p>
+
+<p>It did deduct the credits from the <code>send_account</code> by 1 while i was expecting it should do nothing to it. What's going wrong, the doc says it will rollback the transaction, then I tried to test if calling <code>transfer_credits</code> explicitly is going to work. And yes, it works. Here's the revised version:</p>
+
+<p>```ruby</p>
+
+<h1>transaction.rb</h1>
+
+<p>class Transaction &lt; ActiveRecord::Base
+  attr_accessible :credits</p>
+
+<p>  belongs_to :send_account, :class_name => "Account"
+  belongs_to :recv_account, :class_name => "Account"</p>
+
+<p>  def transfer_credits</p>
+
+<pre><code>begin
+  ActiveRecord::Base.transaction do
+    send_account.deposit!(-credits)
+    recv_account.deposit!(credits)
+  end
+rescue =&gt; e
+  Rails.logger.info e.message
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<h1>transaction_spec.rb</h1>
+
+<p>describe "#transfer_credits" do
+  before do</p>
+
+<pre><code>@send_account = create :account, :credits =&gt; 1000
+
+@transaction = Transaction.new
+@transaction.send_account = @send_account
+@transaction.credits = 1
+
+recv_account = double(:account).as_null_object
+@transaction.stub(:recv_account) {recv_account}
+recv_account.should_receive(:deposit!).and_raise(StandardError.new("Transfer failed!"))
+</code></pre>
+
+<p>  end</p>
+
+<p>  it "should not transfer the credits" do</p>
+
+<pre><code>@transaction.transfer_credits
+
+@send_account.reload
+
+@send_account.credits.should == 1000
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>GOTCHA: DO NOT place ATOMIC operations within callbacks, like <code>before_*</code>, <code>after_*</code></p>
+]]></content>
+  </entry>
+  
+</feed>

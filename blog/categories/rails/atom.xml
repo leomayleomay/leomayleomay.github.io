@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: rails | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2017-07-17T15:27:07+12:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Print to label printer directly from within web application]]></title>
+    <link href="http://leomayleomay.github.io/blog/2015/10/24/print-to-label-printer-directly-from-within-web-application/"/>
+    <updated>2015-10-24T07:49:00+13:00</updated>
+    <id>http://leomayleomay.github.io/blog/2015/10/24/print-to-label-printer-directly-from-within-web-application</id>
+    <content type="html"><![CDATA[<p>I've been helping a local store developing a Point of Sale (POS) system recently, and one of their requirements is printing price tag from within the product management interface. The first time I heard about this, I thought it was impossbile to have a web app to talk to a local printer. "There must be something like a client app, which installed on the client side, retriving the print jobs via a REST api and send it to the label printer.", my initial thought leads me to start looking for <a href="https://en.wikipedia.org/wiki/Java_applet">Java Applet</a>, which pretty much acts as a client app but residing in a web page.</p>
+
+<p>After few google searches, I found a Java Applet named <a href="https://code.google.com/p/jzebra/wiki/About">jZebra</a>, which looks pretty much what I need, and it's now moved to to <a href="https://qz.io">QZ</a>.</p>
+
+<p>Download and install the free version of the software, now I have QZ-Tray as a broker who's going to talk to the printer, the applet in the web page is going to communicate with QZ-Tray via WebSocket, it works like a magic, but there're few pitfalls I need to mention here hoping it could help someone like me.</p>
+
+<ul>
+<li>setup the label printer</li>
+</ul>
+
+
+<p>QZ has provided a really great tutorial on <a href="https://qz.io/wiki/setting-up-a-raw-printer-in-osx">how to setup the label printer</a>, I tried to follow the instructions, but never succeeded. The thing is from within http://localhost:631/admin, you should not click "Add Printer", while you should click "Find New Printers", and follow the rest of the instructions from QZ. You may need to restart the QZ-Tray to pick up the changes.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[As a Rails dev, you may want to think in the iOS way]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way/"/>
+    <updated>2013-08-18T16:02:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/08/18/think-in-ios-way</id>
+    <content type="html"><![CDATA[<p>I am not sure this is a good idea, but I think it worths a post to share the idea to the people who're suffering/fighting messy dependencies within their applications.</p>
+
+<p>Anyone who's been programming in Objective-C should be familiar with the delegate/protocol, you can barely make any practical iOS application without knowing the delegate/protocol. For those of you who have never been in the iOS world, this is the quick definition from <a href="http://developer.apple.com/library/ios/documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithProtocols/WorkingwithProtocols.html">apple official document</a></p>
+
+<blockquote><p>In the world of object-oriented programming, it’s important to be able to define a set of behavior that is expected of an object in a given situation. As an example, a table view expects to be able to communicate with a data source object in order to find out what it is required to display. This means that the data source must respond to a specific set of messages that the table view might send.</p></blockquote>
+
+<p>I am not a language expert, I have no idea who invented this, but this is definitely a brilliant idea in my opinion, you just fire a method on your collaborator, and you will be notified what to do next. You don't ask, you tell, sounds familiar? Yeah, people in Hollywood are always saying:</p>
+
+<blockquote><p>You don't call us, we will call you</p></blockquote>
+
+<p>It's also well known as <a href="http://c2.com/cgi/wiki?TellDontAsk">Tell, don't ask</a>.</p>
+
+<p>You know what, you don't have to be an iOS developer to benefit from this, this is generic you can apply it to your Rails applications.</p>
+
+<p>```ruby</p>
+
+<p>class PostsController &lt; ApplicationController
+  def new</p>
+
+<pre><code>@post = Post.new
+</code></pre>
+
+<p>  end</p>
+
+<p>  def create</p>
+
+<pre><code>@post = Post.new(params[:post])
+
+if @post.save
+  redirect_to posts_path, :notice =&gt; "Post created succesfully!"
+else
+  render :new
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>The above snippet is a classical <code>PostsController</code> that does nothing wrong, the coming part is the same logic implemented with delegate/protocol.</p>
+
+<p>```ruby</p>
+
+<p>class PostsController &lt; ApplicationController
+  def new</p>
+
+<pre><code>@post = Post.new
+</code></pre>
+
+<p>  end</p>
+
+<p>  def create</p>
+
+<pre><code>service = PostService.new
+service.delegate = self
+service.create_new_post(params[:post])
+</code></pre>
+
+<p>  end</p>
+
+<p>  # PostServiceProtocol begins
+  def new_post_created_successfully(post)</p>
+
+<pre><code>redirect_to posts_path, :notice =&gt; "Post created succesfully!"
+</code></pre>
+
+<p>  end</p>
+
+<p>  def new_post_not_created_because_of(errors)</p>
+
+<pre><code>render :new
+</code></pre>
+
+<p>  end
+  # PostServiceProtocol ends
+end</p>
+
+<p>class PostService
+  attr_writer :delegate</p>
+
+<p>  def create_new_post(params)</p>
+
+<pre><code>post = Post.new(params)
+
+if post.save
+  self.delegate.new_post_created_successfully(post)
+else
+  self.delegate.new_post_not_created_because_of(post.errors)
+end
+</code></pre>
+
+<p>  end</p>
+
+<p>  protected
+  def delegate</p>
+
+<pre><code>@delegate ||= NullPostServiceDelegate.new
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>class NullPostServiceDelegate
+  def new_post_created_successfully(post)</p>
+
+<pre><code># no-op
+</code></pre>
+
+<p>  end</p>
+
+<p>  def new_post_not_created_because_of(errors)</p>
+
+<pre><code># no-op
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>If you are still with me, you may ask: "why bother?", why we want to do this as long as the first version is working perfectly, my explanation is you never know who's going to call <code>PostService#create_new_post</code>. For now, it's just <code>PostsController</code> doing that. Imagine the Rails application is providing API backend for a mobile app, someone is going to create new post via API, are we going to duplicate the logic as well as the tests? I don't think so.</p>
+
+<p>```ruby</p>
+
+<p>class Api::PostsController &lt; Api::Base
+  def create</p>
+
+<pre><code>service = PostService.new
+service.delegate = self
+service.create_new_post(params[:post])
+</code></pre>
+
+<p>  end</p>
+
+<p>  # PostServiceProtocol begins
+  def new_post_created_successfully(post)</p>
+
+<pre><code>render :json =&gt; post.to_json
+</code></pre>
+
+<p>  end</p>
+
+<p>  def new_post_not_created_because_of(errors)</p>
+
+<pre><code>render :json =&gt; {
+  :errors =&gt; errors
+}.to_json
+</code></pre>
+
+<p>  end
+  # PostServiceProtocol ends
+end</p>
+
+<p>```</p>
+
+<p>You can see from the above example, I am having the same logic for creating post for the web endpoint and API endpoint, it's consitent.</p>
+
+<p>For now, there's no way in plain Ruby to define protocol for a class, there's also no way to have a class corform to specific protocol, I am considering have a gem for that, if you are interested pair with me, ping me.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Polymorphic image styles with Paperclip]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip/"/>
+    <updated>2013-07-30T15:02:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/07/30/polymorphic-image-styles-using-paperclip</id>
+    <content type="html"><![CDATA[<p>You may have ran into the following scenario that your rails app having 1+ domain models having image with them, say <code>Album</code> has one <code>cover</code>, <code>User</code> has one <code>avatar</code>:</p>
+
+<p>```ruby</p>
+
+<p>class Image &lt; ActiveRecord::Base
+  belongs_to :viewable, :polymorphic => true</p>
+
+<p>  validate :viewable, :presence => true</p>
+
+<p>  has_attached_file :attachment
+end</p>
+
+<p>class User &lt; ActiveRecord::Base
+  has_one :avatar, :class_name => "Image", :as => :viewable, :dependent => :destroy
+end</p>
+
+<p>class Album &lt; ActiveRecord::Base
+  has_one :cover, :class_name => "Image", :as => :viewable, :dependent => :destroy
+end</p>
+
+<p>```</p>
+
+<p>As you can see, an image belongs to a <code>viewable</code> object, the <code>viweable</code> object could be an instance of <code>User</code> or <code>Album</code> or anything else.</p>
+
+<p>The presumption here is that the <code>cover</code> is having a set of styles different from with the <code>avatar</code>, but we only have one <code>Image</code> class, what are we supposed to do? We dispatch. We let the <code>viewable</code> object decide the styles of the image.</p>
+
+<p>```ruby
+class Image &lt; ActiveRecord::Base
+  belongs_to :viewable, :polymorphic => true</p>
+
+<p>  validate :viewable, :presence => true</p>
+
+<p>  has_attached_file :attachment,</p>
+
+<pre><code>:styles =&gt; Proc.new {|a| a.instance.viewable.image_styles}
+</code></pre>
+
+<p>end</p>
+
+<p>class User &lt; ActiveRecord::Base
+  has_one :avatar, :class_name => "Image", :as => :viewable, :dependent => :destroy</p>
+
+<p>  def image_styles</p>
+
+<pre><code>{
+  :thumb =&gt; "30x30&gt;",
+  :medium =&gt; "100x100&gt;"
+}
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>class Album &lt; ActiveRecord::Base
+  has_one :cover, :class_name => "Image", :as => :viewable, :dependent => :destroy</p>
+
+<p>  def image_styles</p>
+
+<pre><code>{
+  :cart =&gt; "50x50&gt;"
+  :large =&gt; "300x300&gt;"
+}
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>We now have one <code>Image</code> class having different styles for different <code>viewable</code> objects, we can also do the same thing to <code>default_url</code> and <code>path</code>. Leave me a comment if you have better solution, thanks a lot.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[gotcha: get DateTime.now work with ActiveRecord::Base scope]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope/"/>
+    <updated>2013-06-29T19:12:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/06/29/gotcha-get-datetime-dot-now-work-with-activerecord-base-scope</id>
+    <content type="html"><![CDATA[<p>```ruby</p>
+
+<p>class Invitation &lt; ActiveRecord::Base
+  scope :expired, where("invitations.expired_at &lt; ?", DateTime.now)
+end</p>
+
+<p>```</p>
+
+<p>It looks nothing wrong with the above code at the first glance. Let's have an interesting experiment,</p>
+
+<p><code>bash
+1.9.3p327 :001 &gt; Invitation.expired.to_sql
+ =&gt; "SELECT `invitations`.* FROM `invitations`  WHERE (invitations.created_at &lt; '2013-06-29 12:00:16')"
+1.9.3p327 :002 &gt; DateTime.now.utc
+ =&gt; Sat, 29 Jun 2013 12:35:50 +0000
+</code></p>
+
+<p>As you can see, the <code>DateTime.now.utc</code> returns "12:35:50", while the SQL statement in the first line says "12:00:16", there's a mysterious gap between two of them. Actually, the "12:00:16" is the time I started the rails console, to be more precise, it's the time the <code>app/models/invitation.rb</code> is loaded, it's the time the <code>DateTime.now</code> in the <code>expired</code> scope was evaluated. This could be a serious problem for some of you, espeically under production environment, since once you deployed your application, the <code>DateTime.now</code> will keep what it was when the application was fully loaded by the application server, and it will be a constant value instead of a variable value as you imagined, the only chance it will get changed is the next time you deploy the application.</p>
+
+<p>The problem seems to be mysterious, but the solution to the problem is pretty straightforwarding, <code>lambda</code>, have <code>lambda</code> work with the scope will make the statements in the closure evaluated dynamically every time the scope is called.</p>
+
+<p>```ruby</p>
+
+<p>class Invitation &lt; ActiveRecord::Base
+  scope :expired, lambda {</p>
+
+<pre><code>where("invitations.expired_at &lt; ?", DateTime.now)
+</code></pre>
+
+<p>  }
+end</p>
+
+<p>```</p>
+
+<p><code>bash
+1.9.3p327 :001 &gt; Invitation.expired.to_sql
+ =&gt; "SELECT `invitations`.* FROM `invitations`  WHERE (invitations.created_at &lt; '2013-06-29 12:40:11')"
+1.9.3p327 :002 &gt; DateTime.now.utc
+ =&gt; Sat, 29 Jun 2013 12:40:12 +0000
+</code></p>
+
+<p>It seems to be working this time. It's time to add more spec to cover this.</p>
+
+<p>```ruby
+describe Invitation do
+  descirbe '.expired' do</p>
+
+<pre><code>it "should find all the expired invitations" do
+  invitation_1 = Factory(:invitation, :expired_at =&gt; DateTime.now - 1.seconds)
+  invitation_2 = Factory(:invitation, :expired_at =&gt; DateTime.now + 1.seconds)
+
+  Invitation.expired.to_a.should == [invitation_1]
+end
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<p>The above test will fail if you not using <code>lambda</code>, just keep in mind, test will save your ass every time.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Gotcha: ActiveRecord::Base.transaction stops working within callbacks]]></title>
+    <link href="http://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks/"/>
+    <updated>2013-06-07T22:45:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2013/06/07/gotcha-activerecord-base-dot-transaction-stops-working-within-callbacks</id>
+    <content type="html"><![CDATA[<p>If you are not familiar with <code>ActiveRecord::Base.transaction</code>, i highly recommend you go through the <a href="http://api.rubyonrails.org/classes/ActiveRecord/Transactions/ClassMethods.html">document</a>.</p>
+
+<p>As you can see,</p>
+
+<blockquote><p>Exceptions will force a ROLLBACK that returns the database to the state before the transaction began.</p></blockquote>
+
+<p>that means the following code should rollback the transaction if any of the <code>deposit!</code> fails</p>
+
+<p>```ruby</p>
+
+<h1>transaction.rb</h1>
+
+<p>class Transaction &lt; ActiveRecord::Base
+  after_create :transfer_credits</p>
+
+<p>  attr_accessible :credits</p>
+
+<p>  belongs_to :send_account, :class_name => "Account"
+  belongs_to :recv_account, :class_name => "Account"</p>
+
+<p>  private
+  def transfer_credits</p>
+
+<pre><code>begin
+  ActiveRecord::Base.transaction do
+    send_account.deposit!(-credits) 
+    recv_account.deposit!(credits)
+  end
+rescue =&gt; e
+  Rails.logger.info e.message
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<h1>transaction_spec.rb</h1>
+
+<p>context "exception raised" do
+  before do</p>
+
+<pre><code>@send_account = create :account, :credits =&gt; 1000
+
+@transaction = Transaction.new
+@transaction.send_account = @send_account
+@transaction.credits = 1
+
+recv_account = double(:account).as_null_object
+@transaction.stub(:recv_account) {recv_account}
+recv_account.should_receive(:deposit!).and_raise(StandardError.new("Transfer failed!"))
+</code></pre>
+
+<p>  end</p>
+
+<p>  it "should not transfer the credits" do</p>
+
+<pre><code>@transaction.save
+
+@send_account.reload
+
+@send_account.credits.should == 1000
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>But the result is the spec fails and says</p>
+
+<p>```bash</p>
+
+<p>Failures:</p>
+
+<p>  1) Transaction status exception raised should not transfer the credits</p>
+
+<pre><code> Failure/Error: @send_account.credits.should == 1000
+   expected: 1000
+        got: 999 (using ==)
+ # ./spec/models/transaction_spec.rb:185:in `block (4 levels) in &lt;top (required)&gt;'
+</code></pre>
+
+<p>Finished in 1.73 seconds
+1 example, 1 failure</p>
+
+<p>```</p>
+
+<p>It did deduct the credits from the <code>send_account</code> by 1 while i was expecting it should do nothing to it. What's going wrong, the doc says it will rollback the transaction, then I tried to test if calling <code>transfer_credits</code> explicitly is going to work. And yes, it works. Here's the revised version:</p>
+
+<p>```ruby</p>
+
+<h1>transaction.rb</h1>
+
+<p>class Transaction &lt; ActiveRecord::Base
+  attr_accessible :credits</p>
+
+<p>  belongs_to :send_account, :class_name => "Account"
+  belongs_to :recv_account, :class_name => "Account"</p>
+
+<p>  def transfer_credits</p>
+
+<pre><code>begin
+  ActiveRecord::Base.transaction do
+    send_account.deposit!(-credits)
+    recv_account.deposit!(credits)
+  end
+rescue =&gt; e
+  Rails.logger.info e.message
+end
+</code></pre>
+
+<p>  end
+end</p>
+
+<h1>transaction_spec.rb</h1>
+
+<p>describe "#transfer_credits" do
+  before do</p>
+
+<pre><code>@send_account = create :account, :credits =&gt; 1000
+
+@transaction = Transaction.new
+@transaction.send_account = @send_account
+@transaction.credits = 1
+
+recv_account = double(:account).as_null_object
+@transaction.stub(:recv_account) {recv_account}
+recv_account.should_receive(:deposit!).and_raise(StandardError.new("Transfer failed!"))
+</code></pre>
+
+<p>  end</p>
+
+<p>  it "should not transfer the credits" do</p>
+
+<pre><code>@transaction.transfer_credits
+
+@send_account.reload
+
+@send_account.credits.should == 1000
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>```</p>
+
+<p>GOTCHA: DO NOT place ATOMIC operations within callbacks, like <code>before_*</code>, <code>after_*</code></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: javascript | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/javascript/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2017-07-17T15:27:07+12:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Evaluate the javascript from server side]]></title>
+    <link href="http://leomayleomay.github.io/blog/2015/08/10/evaluate-the-javascript-from-server-side/"/>
+    <updated>2015-08-10T20:28:00+12:00</updated>
+    <id>http://leomayleomay.github.io/blog/2015/08/10/evaluate-the-javascript-from-server-side</id>
+    <content type="html"><![CDATA[<p>A problem I run into recently is I am trying to send an AJAX request to fetch grouped options for a select input, the select input is dynamically generated, and I don't want to assign an unique random ID to it, and pass the ID to the server as the DOM selector, I do believe there's a better way of doing this, here's what I come up:</p>
+
+<p>```ruby</p>
+
+<h1>options/index.js.erb</h1>
+
+<p>var groupedOptionsHTML = "&lt;%= j helper_method_generate_grouped_options %>";</p>
+
+<p>```</p>
+
+<p>```javascript</p>
+
+<p>var newSelectInput = generateSelectInput();</p>
+
+<p>$.ajax({
+  type: "GET",
+  dataType: "script",
+  url: "http://localhost:3000/options",
+  success: function(data, xhr, status) {</p>
+
+<pre><code>eval(data);
+
+newSelectInput.html(groupedOptionHTML);
+</code></pre>
+
+<p>  }
+})</p>
+
+<p>```</p>
+
+<p>As you can see, the key to retrieve the variable <code>groupedOptionsHTML</code> is to evaluate the data returned using <code>eval(data)</code>. Please drop a line if you have any better idea to solve this problem, cheers.</p>
+]]></content>
+  </entry>
+  
+</feed>

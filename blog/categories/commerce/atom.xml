@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: commerce | Hao's Thoughts]]></title>
+  <link href="http://leomayleomay.github.io/blog/categories/commerce/atom.xml" rel="self"/>
+  <link href="http://leomayleomay.github.io/"/>
+  <updated>2017-07-17T15:27:07+12:00</updated>
+  <id>http://leomayleomay.github.io/</id>
+  <author>
+    <name><![CDATA[Hao Liu]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Print to label printer directly from within web application]]></title>
+    <link href="http://leomayleomay.github.io/blog/2015/10/24/print-to-label-printer-directly-from-within-web-application/"/>
+    <updated>2015-10-24T07:49:00+13:00</updated>
+    <id>http://leomayleomay.github.io/blog/2015/10/24/print-to-label-printer-directly-from-within-web-application</id>
+    <content type="html"><![CDATA[<p>I've been helping a local store developing a Point of Sale (POS) system recently, and one of their requirements is printing price tag from within the product management interface. The first time I heard about this, I thought it was impossbile to have a web app to talk to a local printer. "There must be something like a client app, which installed on the client side, retriving the print jobs via a REST api and send it to the label printer.", my initial thought leads me to start looking for <a href="https://en.wikipedia.org/wiki/Java_applet">Java Applet</a>, which pretty much acts as a client app but residing in a web page.</p>
+
+<p>After few google searches, I found a Java Applet named <a href="https://code.google.com/p/jzebra/wiki/About">jZebra</a>, which looks pretty much what I need, and it's now moved to to <a href="https://qz.io">QZ</a>.</p>
+
+<p>Download and install the free version of the software, now I have QZ-Tray as a broker who's going to talk to the printer, the applet in the web page is going to communicate with QZ-Tray via WebSocket, it works like a magic, but there're few pitfalls I need to mention here hoping it could help someone like me.</p>
+
+<ul>
+<li>setup the label printer</li>
+</ul>
+
+
+<p>QZ has provided a really great tutorial on <a href="https://qz.io/wiki/setting-up-a-raw-printer-in-osx">how to setup the label printer</a>, I tried to follow the instructions, but never succeeded. The thing is from within http://localhost:631/admin, you should not click "Add Printer", while you should click "Find New Printers", and follow the rest of the instructions from QZ. You may need to restart the QZ-Tray to pick up the changes.</p>
+]]></content>
+  </entry>
+  
+</feed>
