@@ -8,11 +8,9 @@ footer: false
 
 -> **Liu Hao** <-
 
--> Wellington, New Zealand <-
+-> Christchurch, New Zealand <-
 
 -> Github: [leomayleomay](https://github.com/leomayleomay) <-
-
--> Twitter: [@leomayleomay](https://twitter.com/leomayleomay) <-
 
 
 ##EDUCATIONS
@@ -29,20 +27,39 @@ footer: false
 ##SKILLS
 
 * ###Programming
-	* _Ruby, Ruby on Rails (9 years)_
-	* _RSpec, Cucumber (7 years)_
-	* _Objective-C, Cocoa Touch (1.5 years)_
+	* _Ruby, Ruby on Rails (15 years)_
+	* _RSpec, Cucumber (10 years)_
+	* _React (5 years)_
+	* _Typescript (3 years)_
+	* _Rust (1 year)_
+	* _Haskell (2 years)_
+	* _Purescript (2 years)_
 
 <br>
 
-* ###Payment Gateways
-	* _T-Gate_
-	* _IPCommerce_
-
 ##PROFESSIONAL EXPERIENCES
 
+* ## Culture Amp
+_Contract engineer, Mar 2020 - Now
+
+	* _Tackle tough performance issue due to poor usage of ActiveRecord query._
+	* _Fine tune the SQL statements to keep the service up & running with time consuming queries._
+	* _Maintain private gems to provide functionalities across different apps._
+
+<br>
+
+
+* ## Flux Federation
+_Contract engineer, Sep 2019 - Mar 2020
+
+	* _Work with 3rd party vendors to provide API endpoints for data access._
+	* _Maintain the backend billing system, provide quality test to make sure things work as expected._
+
+<br>
+
+
 * ###Cohort Solutions
-_Software engineer, Oct 2015 - Current_
+_Software engineer, Oct 2015 - Sep 2019
 
 	* _[Cohort Solutions](http://www.cohortsolutions.com/), I work for the company on a range of web apps, from backend to frontend, for the backend, I am basically responsible for developing new features and fixing bugs for the services we have split into small chunks, for the frontend, it's more of React._
 
@@ -72,13 +89,6 @@ _Senior Engineer, Oct 2009 - Apr 2011_
 
 	* _[Gamestreamer](https://www.gamestreamer.com), is an online game-trading platform. The majority of my work was on the backend administration interface for game vendors. Refactoring was crucial. Thus I directed and managed the code for unit, functional and acceptance tests to increase the robustness._
 	* _[Avascent](https://050.avascent.com/), is an online report and chart visualization platform built for big-data analysis. I architected the system from the ground-up, including the frontend and backend business logic, unit tests, functional tests and acceptance tests._
-
-<br>
-
-* ###Oak Pacific Interactive
-_Engineer, Oct 2008 - Oct 2009_
-
-	* _I collaborated in building up an internal CMS, for the UI/UX staff managing the materials used in the process of development. The CMS contains version management with which individuals can retrieve all the changes to the materials and dump/restore the changes as deemed necessary._
 
 <br>
 
